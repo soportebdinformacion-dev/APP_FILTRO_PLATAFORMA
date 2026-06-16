@@ -24,14 +24,14 @@
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Agrícola Huarmey | fundo Frusan</h1>
+                    <h1 class="text-2xl font-bold tracking-tight">FRUSAN</h1>
                     <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo conexión a la base de datos...</span>
+                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
             </div>
         </div>
     </header>
@@ -144,7 +144,7 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base de datos de Agrícola Huarmey...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa con Google Sheets Frusan...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
@@ -162,7 +162,6 @@
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
 
-        // Lector robusto que procesa correctamente comas internas envueltas en comillas
         function dividirFilaCSV(linea) {
             const campos = [];
             let dentroDeComillas = false;
@@ -197,18 +196,18 @@
                 if (!nombre && !dni) continue;
 
                 resultado.push({
-                    nombre: nombre.toUpperCase(),
-                    sexo: celdas[1] || "N/A",
-                    celular: celdas[2] || "",
-                    whatsapp: celdas[3] || "",
-                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase(),
-                    modalidad: (celdas[5] || "N/A").toUpperCase(),
-                    experiencia: (celdas[6] || "NINGUNO").toUpperCase(),
-                    zona: (celdas[7] || "N/A").toUpperCase(),
-                    dni: dni || "",
-                    categorizacion: (celdas[9] || "PERSONAL NUEVO").toUpperCase(),
-                    total_dias_laborados: celdas[10] || "0",
-                    evento_registro: celdas[11] || "N/A"
+                    nombre: nombre.toUpperCase().trim(),
+                    sexo: (celdas[1] || "N/A").trim(),
+                    celular: (celdas[2] || "").trim(),
+                    whatsapp: (celdas[3] || "").trim(),
+                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase().trim(),
+                    modalidad: (celdas[5] || "N/A").toUpperCase().trim(),
+                    experiencia: (celdas[6] || "NINGUNO").toUpperCase().trim(),
+                    zona: (celdas[7] || "N/A").toUpperCase().trim(),
+                    dni: (dni || "").trim(),
+                    categorizacion: (celdas[9] || "").toUpperCase().trim(),
+                    total_dias_laborados: (celdas[10] || "0").trim(),
+                    evento_registro: (celdas[11] || "").toUpperCase().trim() // Columna EVENTO REGISTRO estandarizada
                 });
             }
             return resultado;
@@ -264,11 +263,22 @@
         }
 
         function actualizarEstadisticas(datos) {
+            // Total Registros
             document.getElementById('stat-total').innerText = datos.length;
-            // Los contadores ahora buscan con flexiblidad por palabras clave (ANTIGUO y NUEVO)
-            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
-            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
-            document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
+            
+            // CONTEO BASADO EXCLUSIVAMENTE EN LA COLUMNA "EVENTO REGISTRO"
+            const totalAntiguos = datos.filter(t => 
+                t.evento_registro && t.evento_registro.includes("PERSONAL ANTIGUO")
+            ).length;
+            document.getElementById('stat-antiguo').innerText = totalAntiguos;
+            
+            const totalNuevos = datos.filter(t => 
+                t.evento_registro && t.evento_registro.includes("PERSONAL NUEVO")
+            ).length;
+            document.getElementById('stat-nuevo').innerText = totalNuevos;
+            
+            // Modalidad Campamento
+            document.getElementById('stat-campamento').innerText = datos.filter(t => /CAMPAMENTO/.test(t.modalidad)).length;
         }
 
         function enviarInvitacionWhatsApp(trabajador) {
@@ -278,7 +288,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agrícola Huarmey | fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -294,8 +304,10 @@
             noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                const esAntiguo = t.categorizacion.includes("ANTIGUO");
+                // El color visual del Badge cambia de acuerdo al valor de EVENTO REGISTRO
+                const esAntiguo = t.evento_registro && t.evento_registro.includes("PERSONAL ANTIGUO");
                 const badgeStyle = esAntiguo ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
+                
                 const filaHTML = `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="py-3 px-4 text-center">
@@ -305,8 +317,8 @@
                         </td>
                         <td class="py-3 px-4 font-semibold text-slate-800 uppercase tracking-tight">${t.nombre}</td>
                         <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
-                        <td class="py-3 px-4"><span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${t.categorizacion}</span></td>
-                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro}</td>
+                        <td class="py-3 px-4"><span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${t.evento_registro || "N/A"}</span></td>
+                        <td class="py-3 px-4 text-xs font-bold text-slate-700">${t.evento_registro || "N/A"}</td>
                         <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
                         <td class="py-3 px-4 text-xs font-bold text-slate-500">${t.tipo_trabajo}</td>
                         <td class="py-3 px-4 text-slate-600 uppercase">${t.zona}</td>
@@ -340,9 +352,18 @@
         function exportarExcel() {
             if (datosFiltradosActuales.length === 0) return;
             const datosAcondicionados = datosFiltradosActuales.map(t => ({
-                "Apellidos y Nombres": t.nombre, "DNI": t.dni, "Sexo": t.sexo, "Celular": t.celular, "WhatsApp": t.whatsapp,
-                "Categorización": t.categorizacion, "Evento Registro": t.evento_registro, "Modalidad": t.modalidad,
-                "Tipo de Trabajo": t.tipo_trabajo, "Zona": t.zona, "Experiencia": t.experiencia, "Días Laborados": parseInt(t.total_dias_laborados) || 0
+                "Apellidos y Nombres": t.nombre, 
+                "DNI": t.dni, 
+                "Sexo": t.sexo, 
+                "Celular": t.celular, 
+                "WhatsApp": t.whatsapp,
+                "Categorización": t.categorizacion, 
+                "Evento Registro": t.evento_registro || "N/A", 
+                "Modalidad": t.modalidad,
+                "Tipo de Trabajo": t.tipo_trabajo, 
+                "Zona": t.zona, 
+                "Experiencia": t.experiencia, 
+                "Días Laborados": parseInt(t.total_dias_laborados) || 0
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
