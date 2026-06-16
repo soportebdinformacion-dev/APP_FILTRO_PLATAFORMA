@@ -9,32 +9,27 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Outfit', sans-serif; background-color: #f1f5f9; }
-        .brand-gradient { background: linear-gradient(135deg, #0b1f3b 0%, #173766 100%); }
-        .text-brand { color: #0b1f3b; }
-        .border-brand { border-color: #0b1f3b; }
+        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
+        .brand-gradient { background: linear-gradient(135deg, #0b1f3b 0%, #1e3a8a 100%); }
     </style>
 </head>
-<body class="text-slate-800 antialiased">
+<body class="text-slate-800">
 
-    <header class="brand-gradient text-white shadow-lg sticky top-0 z-50">
-        <div class="max-w-[95%] mx-auto px-4 py-4 flex flex-col sm:flex-row items-center justify-between gap-4">
-            <div class="flex items-center gap-4">
-                <div class="bg-white p-2 rounded-lg shadow-inner flex items-center justify-center w-14 h-14">
-                    <i class="fa-solid fa-wheat-awn text-[#0b1f3b] text-3xl"></i>
+    <header class="brand-gradient text-white shadow-md">
+        <div class="max-w-[95%] mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+            <div class="flex items-center gap-4 text-center sm:text-left">
+                <div class="bg-white p-2 rounded-xl shadow-inner flex items-center justify-center w-12 h-12">
+                    <i class="fa-solid fa-wheat-awn text-[#0b1f3b] text-2xl"></i>
                 </div>
-                <div class="text-center sm:text-left">
-                    <h1 class="text-2xl font-bold tracking-tight">FRUSAN</h1>
-                    <p class="text-xs text-slate-300 font-light flex items-center gap-1 justify-center sm:justify-start">
-                        <i class="fa-solid fa-circle text-green-400 text-[8px] animate-pulse"></i> 
-                        Control de Personal · Cosecha 2026
-                    </p>
+                <div>
+                    <h1 class="text-xl font-bold tracking-tight">FRUSAN</h1>
+                    <p class="text-xs text-slate-300 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
-            <div class="text-right hidden md:block">
-                <span class="text-sm bg-white/10 px-3 py-1.5 rounded-full backdrop-blur-sm text-slate-200">
-                    <i class="fa-solid fa-calendar-days mr-1.5"></i> Campaña Arándanos
-                </span>
+            
+            <div id="connection-status" class="flex items-center gap-2 bg-slate-900/40 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
+                <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
+                <span id="status-text" class="text-slate-200">Estableciendo conexión...</span>
             </div>
         </div>
     </header>
@@ -44,7 +39,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Registrados</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Encontrados</p>
                     <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
                 <div class="bg-blue-50 text-blue-600 p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
@@ -65,52 +60,78 @@
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Modalidad Campamento</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Campamento</p>
                     <h3 id="stat-campamento" class="text-2xl font-bold text-indigo-600 mt-1">0</h3>
                 </div>
                 <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl"><i class="fa-solid fa-campground text-xl"></i></div>
             </div>
         </div>
 
-        <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 mb-6 flex flex-col gap-4">
-            <div class="relative w-full">
-                <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
-                <input type="text" id="search-bar" oninput="filtrarPersonal()" 
-                       placeholder="Buscar por nombre, DNI, zona o experiencia..." 
-                       class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-[#0b1f3b] transition-all"/>
-            </div>
-        </div>
-
-        <div class="mb-8">
-            <div class="flex items-center justify-between mb-4">
-                <h2 class="text-lg font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-address-card text-[#0b1f3b]"></i> Fichas Individuales de Trabajadores
-                </h2>
-                <span class="text-xs font-medium bg-slate-200 text-slate-600 px-2.5 py-1 rounded-md" id="cards-count">Mostrando: 0</span>
-            </div>
-            <div id="contenedor-tarjetas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-4">
+        <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 space-y-4">
+            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                <i class="fa-solid fa-sliders text-[#0b1f3b]"></i> Filtros de Búsqueda Avanzada
+            </h3>
+            
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+                <div class="xl:col-span-2">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre o DNI</label>
+                    <div class="relative">
+                        <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
+                        <input type="text" id="search-bar" oninput="filtrarPersonal()" placeholder="Escribe para buscar..." 
+                               class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]"/>
+                    </div>
                 </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Categorización</label>
+                    <select id="filter-categorizacion" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                        <option value="">TODOS</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Evento Registro</label>
+                    <select id="filter-evento" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                        <option value="">TODOS</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Modalidad</label>
+                    <select id="filter-modalidad" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                        <option value="">TODOS</option>
+                    </select>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Tipo de Trabajo</label>
+                    <select id="filter-trabajo" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                        <option value="">TODOS</option>
+                    </select>
+                </div>
+
+                <div class="sm:col-span-2 lg:col-span-1">
+                    <label class="block text-xs font-semibold text-slate-500 mb-1">Experiencia</label>
+                    <select id="filter-experiencia" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                        <option value="">TODOS</option>
+                    </select>
+                </div>
+            </div>
         </div>
 
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="p-4 border-b border-slate-100 bg-slate-50 flex items-center justify-between">
-                <h2 class="font-bold text-slate-800 flex items-center gap-2">
-                    <i class="fa-solid fa-table-list text-[#0b1f3b]"></i> Base de Datos General (dashboard)
-                </h2>
-            </div>
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
                     <thead>
-                        <tr class="bg-slate-100/70 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-3.5 px-4 text-center">Acción</th>
+                        <tr class="bg-slate-100/80 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
+                            <th class="py-3.5 px-4 text-center w-16">WhatsApp</th>
                             <th class="py-3.5 px-4">Apellidos y Nombres</th>
                             <th class="py-3.5 px-4">DNI</th>
                             <th class="py-3.5 px-4">Categorización</th>
-                            <th class="py-3.5 px-4">Zona</th>
-                            <th class="py-3.5 px-4">Celular</th>
-                            <th class="py-3.5 px-4">WhatsApp</th>
-                            <th class="py-3.5 px-4">Tipo Trabajo</th>
+                            <th class="py-3.5 px-4">Evento Registro</th>
                             <th class="py-3.5 px-4">Modalidad</th>
+                            <th class="py-3.5 px-4">Tipo Trabajo</th>
+                            <th class="py-3.5 px-4">Zona</th>
                             <th class="py-3.5 px-4">Experiencia</th>
                             <th class="py-3.5 px-4 text-center">Días Lab.</th>
                         </tr>
@@ -119,156 +140,147 @@
                         </tbody>
                 </table>
             </div>
+
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#0b1f3b] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Cargando base de datos desde Google Sheets...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Estableciendo conexión en tiempo real con Google Sheets...</p>
             </div>
+
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
-                <i class="fa-solid fa-folder-open text-4xl mb-2"></i>
-                <p>No se encontraron registros que coincidan con la búsqueda.</p>
+                <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+                <p class="text-sm">Ningún trabajador coincide con los criterios de los filtros seleccionados.</p>
             </div>
         </div>
 
     </main>
 
-    <footer class="text-center py-6 text-xs text-slate-400 mt-12 border-t border-slate-200 bg-white">
-        &copy; 2026 Frusan S.A. · Todos los derechos reservados · Sistema de Reporte Agrícola Móvil
-    </footer>
-
     <script>
-        // REEMPLAZA ESTA URL CON TU LINK DE IMPLEMENTACIÓN DE GOOGLE APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbxUoLR0lFGMNeh8-VFfc3ZEy6OL31hRtteWBSvHeld-NNRC4ZCbgKVDbf9itDyQwdsf/exec"; 
+        // REEMPLAZA AQUÍ TU URL DE IMPLEMENTACIÓN GENERADA EN APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbzHY0f7V-zozxfzXTctp76ftZDmsQGcRfRnbUhekx2Jzzfa6s8Fw1YMcqVzjzmRvyp5/exec"; 
         
         let listaTrabajadores = [];
 
-        // Función para cargar los datos desde Google Sheets
         async function cargarDatos() {
+            const statusIcon = document.getElementById('status-icon');
+            const statusText = document.getElementById('status-text');
+            const statusContainer = document.getElementById('connection-status');
+
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Error de red');
+                if (!response.ok) throw new Error('Error en respuesta de red');
+                
                 listaTrabajadores = await response.json();
                 
+                // Actualización del Estatus de Conexión a Exitoso
+                statusContainer.className = "flex items-center gap-2 bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-medium text-emerald-400";
+                statusIcon.className = "fa-solid fa-circle text-emerald-400 text-[10px] animate-pulse";
+                statusText.innerText = "Conectado a BD_EMPADRONAMIENTO_2026";
+
                 document.getElementById('loading-state').classList.add('hidden');
+                
+                configurarFiltrosDinamicos(listaTrabajadores);
                 actualizarEstadisticas(listaTrabajadores);
-                renderizarComponentes(listaTrabajadores);
+                renderizarTabla(listaTrabajadores);
+
             } catch (error) {
-                console.error("Error al obtener datos:", error);
+                console.error("Error de enlace:", error);
+                // Actualización del Estatus de Conexión a Fallido
+                statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
+                statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
+                statusText.innerText = "Error de conexión";
+
                 document.getElementById('loading-state').innerHTML = `
                     <div class="text-center text-red-500 p-4">
-                        <i class="fa-solid fa-triangle-exclamation text-3xl mb-2"></i>
-                        <p class="font-bold">Error de sincronización</p>
-                        <p class="text-xs text-slate-400 mt-1">Verifica la URL del Web App y que los accesos del Sheets sean públicos.</p>
+                        <i class="fa-solid fa-triangle-exclamation text-2xl mb-1"></i>
+                        <p class="font-bold text-sm">Fallo en la comunicación de datos</p>
+                        <p class="text-xs text-slate-400">Verifica que hayas vuelto a implementar el script de Google como 'Cualquiera'.</p>
                     </div>
                 `;
             }
         }
 
-        // Calcula y renderiza contadores del Dashboard
+        // Llena los selectores de filtros de forma inteligente con valores únicos de la base de datos
+        function configurarFiltrosDinamicos(datos) {
+            const campos = {
+                'categorizacion': 'filter-categorizacion',
+                'evento_registro': 'filter-evento',
+                'modalidad': 'filter-modalidad',
+                'tipo_trabajo': 'filter-trabajo',
+                'experiencia': 'filter-experiencia'
+            };
+
+            Object.keys(campos).forEach(propiedad => {
+                const selectElement = document.getElementById(campos[propiedad]);
+                // Obtener valores únicos omitiendo vacíos o nulos
+                const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
+                
+                valoresUnicos.forEach(valor => {
+                    const opt = document.createElement('option');
+                    opt.value = valor;
+                    opt.innerText = valor;
+                    selectElement.appendChild(opt);
+                });
+            });
+        }
+
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
             document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
             document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
-            document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.toUpperCase().includes("CAMPAMENTO")).length;
+            document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
-        // Generador automático del Mensaje de WhatsApp personalizado
         function enviarInvitacionWhatsApp(trabajador) {
             if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Número Inválido', text: 'Este trabajador no cuenta con un número de WhatsApp registrado.' });
+                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Este trabajador no registra un número válido en la columna D.' });
                 return;
             }
 
-            // Limpieza básica del número telefónico
-            let numeroLimpio = trabajador.whatsapp.replace(/\D/g, '');
-            if(!numeroLimpio.startsWith('51') && numeroLimpio.length === 9) {
-                numeroLimpio = '51' + numeroLimpio; // Añade código de país por defecto (Perú)
+            let numero = trabajador.whatsapp.replace(/\D/g, '');
+            if(!numero.startsWith('51') && numero.length === 9) {
+                numero = '51' + numero;
             }
 
-            // Estructura del mensaje dinámico pedido por el usuario
             const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. ¡Te esperamos para seguir creciendo juntos! Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             
-            const urlWhatsApp = `https://api.whatsapp.com/send?phone=${numeroLimpio}&text=${encodeURIComponent(mensaje)}`;
-            window.open(urlWhatsApp, '_blank');
+            window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        // Renderizado del HTML de Tarjetas y Tabla simultáneamente
-        function renderizarComponentes(datos) {
-            const contenedorTarjetas = document.getElementById('contenedor-tarjetas');
+        function renderizarTabla(datos) {
             const tablaCuerpo = document.getElementById('tabla-cuerpo');
             const noResults = document.getElementById('no-results');
-            
-            contenedorTarjetas.innerHTML = "";
             tablaCuerpo.innerHTML = "";
             
-            document.getElementById('cards-count').innerText = `Mostrando: ${datos.length}`;
+            actualizarEstadisticas(datos);
 
             if (datos.length === 0) {
                 noResults.classList.remove('hidden');
                 return;
-            } else {
-                noResults.classList.add('hidden');
             }
+            noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                // Configuración de estilos visuales dinámicos según Categorización
                 const esAntiguo = t.categorizacion.includes("ANTIGUO");
-                const badgeColor = esAntiguo ? "bg-emerald-100 text-emerald-800 border-emerald-200" : "bg-amber-100 text-amber-800 border-amber-200";
-                const iconAvatar = t.sexo.toUpperCase() === "FEMENINO" ? "fa-user-nurse text-pink-500" : "fa-user-tie text-blue-500";
+                const badgeStyle = esAntiguo ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
 
-                // --- 1. RENDERIZAR TARJETA VISUAL ---
-                const tarjetaHTML = `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden hover:shadow-md transition-all duration-200 flex flex-col justify-between group">
-                        <div class="p-5">
-                            <div class="flex items-start justify-between gap-2 mb-3">
-                                <span class="text-[10px] font-bold px-2.5 py-1 rounded-full border ${badgeColor}">
-                                    ${t.categorizacion}
-                                </span>
-                                <span class="text-xs text-slate-400 font-medium"><i class="fa-solid fa-id-card mr-1"></i>${t.dni}</span>
-                            </div>
-                            <h4 class="font-bold text-slate-800 text-sm tracking-tight line-clamp-2 group-hover:text-[#0b1f3b] transition-colors mb-4 min-h-[40px] uppercase">
-                                ${t.nombre}
-                            </h4>
-                            <div class="space-y-2.5 text-xs text-slate-600">
-                                <div class="flex items-center gap-2"><i class="fa-solid fa-map-location-dot text-slate-400 w-4 text-center"></i> <span><b>Zona:</b> ${t.zona}</span></div>
-                                <div class="flex items-center gap-2"><i class="fa-solid fa-briefcase text-slate-400 w-4 text-center"></i> <span><b>Puesto:</b> ${t.tipo_trabajo}</span></div>
-                                <div class="flex items-center gap-2"><i class="fa-solid fa-bus text-slate-400 w-4 text-center"></i> <span><b>Mod.:</b> ${t.modalidad}</span></div>
-                                <div class="flex items-center gap-2"><i class="fa-solid fa-star text-slate-400 w-4 text-center"></i> <span class="truncate"><b>Exp:</b> ${t.experiencia}</span></div>
-                            </div>
-                        </div>
-                        <div class="p-3 bg-slate-50 border-t border-slate-100 flex items-center justify-between gap-2">
-                            <div class="text-center px-2">
-                                <span class="block text-xs font-bold text-slate-700">${t.total_dias_laborados}</span>
-                                <span class="text-[9px] text-slate-400 font-medium uppercase tracking-wider">Días Lab.</span>
-                            </div>
-                            <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' 
-                                    class="flex-1 bg-emerald-600 hover:bg-emerald-700 text-white font-medium py-2 px-3 rounded-xl text-xs flex items-center justify-center gap-1.5 transition-colors shadow-sm shadow-emerald-200">
-                                <i class="fa-brands fa-whatsapp text-sm font-bold"></i> Invitar Cosecha
-                            </button>
-                        </div>
-                    </div>
-                `;
-                contenedorTarjetas.insertAdjacentHTML('beforeend', tarjetaHTML);
-
-                // --- 2. RENDERIZAR FILA DE TABLA ---
                 const filaHTML = `
-                    <tr class="hover:bg-slate-50/80 transition-colors">
+                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="py-3 px-4 text-center">
                             <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' 
-                                    class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-1.5 rounded-lg transition-colors" title="Enviar WhatsApp">
+                                    class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-1.5 rounded-xl transition-colors shadow-sm" title="Enviar WhatsApp">
                                 <i class="fa-brands fa-whatsapp text-base"></i>
                             </button>
                         </td>
-                        <td class="py-3 px-4 font-semibold text-slate-800 uppercase">${t.nombre}</td>
-                        <td class="py-3 px-4 text-slate-600">${t.dni}</td>
+                        <td class="py-3 px-4 font-semibold text-slate-800 uppercase tracking-tight">${t.nombre}</td>
+                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
                         <td class="py-3 px-4">
-                            <span class="text-[11px] font-medium px-2 py-0.5 rounded border ${badgeColor}">${t.categorizacion}</span>
+                            <span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${t.categorizacion}</span>
                         </td>
+                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro}</td>
+                        <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
+                        <td class="py-3 px-4 text-xs font-bold text-slate-500">${t.tipo_trabajo}</td>
                         <td class="py-3 px-4 text-slate-600 uppercase">${t.zona}</td>
-                        <td class="py-3 px-4 text-slate-600">${t.celular || 'N/A'}</td>
-                        <td class="py-3 px-4 text-slate-600">${t.whatsapp || 'N/A'}</td>
-                        <td class="py-3 px-4 text-xs font-semibold text-slate-500">${t.tipo_trabajo}</td>
-                        <td class="py-3 px-4 text-slate-600">${t.modalidad}</td>
-                        <td class="py-3 px-4 text-slate-600 max-w-xs truncate">${t.experiencia}</td>
+                        <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate">${t.experiencia}</td>
                         <td class="py-3 px-4 text-center font-bold text-slate-700">${t.total_dias_laborados}</td>
                     </tr>
                 `;
@@ -276,19 +288,27 @@
             });
         }
 
-        // Filtro en tiempo real omnibox (Busca en múltiples propiedades del objeto)
+        // Lógica del filtro omnibox cruzado combinado con los 5 selectores avanzados
         function filtrarPersonal() {
-            const query = document.getElementById('search-bar').value.toLowerCase().trim();
-            
+            const queryBar = document.getElementById('search-bar').value.toLowerCase().trim();
+            const fCat = document.getElementById('filter-categorizacion').value;
+            const fEvt = document.getElementById('filter-evento').value;
+            const fMod = document.getElementById('filter-modalidad').value;
+            const fTrab = document.getElementById('filter-trabajo').value;
+            const fExp = document.getElementById('filter-experiencia').value;
+
             const datosFiltrados = listaTrabajadores.filter(t => {
-                return t.nombre.toLowerCase().includes(query) ||
-                       t.dni.includes(query) ||
-                       t.zona.toLowerCase().includes(query) ||
-                       t.experiencia.toLowerCase().includes(query) ||
-                       t.categorizacion.toLowerCase().includes(query);
+                const cumpleBusqueda = queryBar === "" || t.nombre.toLowerCase().includes(queryBar) || t.dni.includes(queryBar);
+                const cumpleCat = fCat === "" || t.categorizacion === fCat;
+                const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
+                const cumpleMod = fMod === "" || t.modalidad === fMod;
+                const cumpleTrab = fTrab === "" || t.tipo_trabajo === fTrab;
+                const cumpleExp = fExp === "" || t.experiencia === fExp;
+
+                return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab && cumpleExp;
             });
-            
-            renderizarComponentes(datosFiltrados);
+
+            renderizarTabla(datosFiltrados);
         }
 
         window.addEventListener('DOMContentLoaded', cargarDatos);
