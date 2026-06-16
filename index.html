@@ -121,7 +121,7 @@
 
     <script>
         // Pega aquí la NUEVA URL que copiaste al hacer la nueva implementación en Google Sheets
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZb_y-0z7jSCjYyDJLNSOXFs7L8fwHbRo3O6ttJNULE_U6CXilHBz_Zps1-8DTRxaV/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwSfcTb0IufSX0vo-KH4cs3EAeowAeO-x0QhbZgrPAsCnbU4V_CZRRFCRTNxYf5x0Kc/exec";
 
         let listaTrabajadores = [];
 
@@ -140,7 +140,7 @@
             }
         }
 
-        // Esta función global captura la respuesta sin bloqueos del explorador
+        // Capturador maestro de la respuesta JSONP
         window.recibirDatosSincronizados = function(datos) {
             listaTrabajadores = datos;
             actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
@@ -151,7 +151,6 @@
         function cargarDatos() {
             actualizarEstatusConexion('cargando', 'Conectando...');
             try {
-                // Eliminamos cualquier petición previa inyectada
                 const previo = document.getElementById('script-jsonp-conn');
                 if (previo) previo.remove();
 
