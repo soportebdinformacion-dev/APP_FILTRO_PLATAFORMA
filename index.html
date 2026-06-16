@@ -4,11 +4,8 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Portal de Control - Frusan Cosecha 2026</title>
-    <!-- Tailwind CSS para diseño moderno -->
     <script src="https://cdn.tailwindcss.com"></script>
-    <!-- FontAwesome para Iconos Dinámicos -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
-    <!-- SweetAlert2 para Alertas -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
@@ -18,11 +15,9 @@
 </head>
 <body class="text-slate-800">
 
-    <!-- Membrete Corporativo -->
     <header class="brand-gradient text-white shadow-md">
         <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
-                <!-- Contenedor del Logo -->
                 <div class="bg-white p-2 rounded-xl shadow-md inline-block">
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="h-14 w-auto object-contain" onerror="this.src='https://placehold.co/150x60?text=FRUSAN'"/>
                 </div>
@@ -34,15 +29,12 @@
                 </div>
             </div>
             
-            <!-- Bloque de Conexión y Contador -->
             <div class="flex flex-wrap items-center justify-center gap-3">
-                <!-- COMPONENTE NUEVO: ESTATUS DE CONEXIÓN EN TIEMPO REAL -->
                 <div id="connection-status" class="flex items-center gap-2 bg-amber-500/20 text-amber-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-amber-500/30 backdrop-blur-sm">
                     <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span id="connection-text">Conectando con Google Sheets...</span>
+                    <span id="connection-text">Conectando...</span>
                 </div>
 
-                <!-- Contador Dinámico -->
                 <div class="bg-white/10 px-4 py-2 rounded-xl backdrop-blur-sm text-center min-w-[120px]">
                     <span class="block text-[10px] text-blue-200 uppercase font-semibold tracking-wider">Filtrados</span>
                     <span id="txt-total" class="text-xl font-bold text-white">0</span>
@@ -53,16 +45,13 @@
 
     <main class="max-w-7xl mx-auto px-4 py-8">
         
-        <!-- Panel Avanzado de Filtros y Búsqueda -->
         <div class="bg-white rounded-2xl p-6 shadow-sm mb-8 border border-slate-200">
             <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-filter mr-1"></i> Filtros de Búsqueda</h3>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 items-center">
-                <!-- Buscador por Texto -->
                 <div class="relative">
                     <i class="fa-solid fa-magnifying-glass absolute left-4 top-3.5 text-slate-400"></i>
                     <input type="text" id="search-bar" oninput="filtrarPersonal()" placeholder="Buscar por Nombre o DNI..." class="w-full pl-11 pr-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 transition-all text-sm"/>
                 </div>
-                <!-- Filtro de Puesto -->
                 <div>
                     <select id="filter-tipo" onchange="filtrarPersonal()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer text-sm">
                         <option value="">Todos los Puestos</option>
@@ -70,7 +59,6 @@
                         <option value="PACKING">Solo Packing</option>
                     </select>
                 </div>
-                <!-- Filtro de Categorización -->
                 <div>
                     <select id="filter-categoria" onchange="filtrarPersonal()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer text-sm">
                         <option value="">Todas las Categorías</option>
@@ -80,7 +68,6 @@
                         <option value="NUEVO">Personal Nuevo</option>
                     </select>
                 </div>
-                <!-- Filtro por Evento Registro -->
                 <div>
                     <select id="filter-evento" onchange="filtrarPersonal()" class="w-full px-4 py-3 bg-slate-50 border border-slate-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-blue-600 cursor-pointer text-sm">
                         <option value="">Todos los Eventos / Fechas</option>
@@ -89,7 +76,6 @@
             </div>
         </div>
 
-        <!-- SECCIÓN 1: COMPONENTE KARDEX DE TARJETAS (MÓVILES) -->
         <section class="mb-10">
             <div class="flex items-center gap-2 mb-4">
                 <i class="fa-solid fa-address-card text-blue-700 text-xl"></i>
@@ -103,7 +89,6 @@
             </div>
         </section>
 
-        <!-- SECCIÓN 2: TABLA MAESTRA CON NUEVAS COLUMNAS (PC / TABLETS) -->
         <section>
             <div class="flex items-center gap-2 mb-4">
                 <i class="fa-solid fa-table-list text-blue-700 text-xl"></i>
@@ -123,8 +108,7 @@
                             </tr>
                         </thead>
                         <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-sm">
-                            <!-- Se rellena automáticamente -->
-                        </tbody>
+                            </tbody>
                     </table>
                 </div>
             </div>
@@ -136,98 +120,61 @@
         <p>&copy; 2026 Portal de Gestión Agrícola - Integrado con Google Sheets.</p>
     </footer>
 
-   <!-- LOGICA DE RENDERIZADO Y CONTROL CORREGIDA -->
     <script>
-        // 1. COLOCA AQUÍ TU LINK DE GOOGLE APPS SCRIPT (Asegúrate de que termine en /exec)
-        let WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxqh80eIQ-CZZr578ADlRpILlnwmSFfckj6OUuqIrkThj2lh4UifXWEK_EwC0okbNny/exec";
+        // ⚠️ COLOCA AQUÍ TU URL DE IMPLEMENTACIÓN DE APPS SCRIPT QUE TERMINA EN /exec
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyi557sP2bsB5qROs69zGxJn321bhRA1kjffIl-EuGsvpdzDQb7CirnBhPb4u8haXnd/exec";
 
         let listaTrabajadores = [];
 
-        // Función encargada de actualizar el componente de estatus visual (SIN ALTERAR DISEÑO)
         function actualizarEstatusConexion(estado, mensaje) {
             const container = document.getElementById('connection-status');
             if (!container) return;
-            
             if (estado === 'cargando') {
                 container.className = "flex items-center gap-2 bg-amber-500/20 text-amber-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-amber-500/30 backdrop-blur-sm";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span><span id="connection-text">${mensaje}</span>`;
+                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span><span>${mensaje}</span>`;
             } else if (estado === 'exito') {
                 container.className = "flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-emerald-500/30 backdrop-blur-sm";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span id="connection-text">${mensaje}</span>`;
+                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>${mensaje}</span>`;
             } else if (estado === 'error') {
-                container.className = "flex items-center gap-2 bg-red-500/20 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-red-500/30 backdrop-blur-sm cursor-pointer";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span><span id="connection-text">${mensaje} (Clic config)</span>`;
-                // Permitir reconfigurar si falla
-                container.onclick = abrirConfiguradorURL;
+                container.className = "flex items-center gap-2 bg-red-500/20 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-red-500/30 backdrop-blur-sm";
+                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span><span>${mensaje}</span>`;
             }
         }
 
-        // FUNCIÓN DE CARGA CORREGIDA CON CONFIGURACIÓN DE REDIRECCIÓN NATIVA
         async function cargarDatos() {
-            actualizarEstatusConexion('cargando', 'Conectando con Google Sheets...');
-            
-            // Si el usuario guardó una URL personalizada previamente localmente
-            if (localStorage.getItem("url_sheets_actual")) {
-                WEB_APP_URL = localStorage.getItem("url_sheets_actual");
-            }
-
+            actualizarEstatusConexion('cargando', 'Conectando...');
             try {
-                // Petición optimizada para saltar restricciones locales de navegador
+                // Fetch nativo configurado para manejar correctamente las redirecciones seguras de Google
                 const response = await fetch(WEB_APP_URL, {
                     method: 'GET',
                     mode: 'cors',
-                    redirect: 'follow' // OBLIGATORIO para las redirecciones de Google Drive/Apps Script
+                    redirect: 'follow'
                 });
                 
-                if (!response.ok) throw new Error("Respuesta de red no fue OK");
+                if (!response.ok) throw new Error("Error de red");
                 
                 listaTrabajadores = await response.json();
-                
                 actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
+                
                 configurarFiltroEventos(listaTrabajadores);
                 filtrarPersonal(); 
             } catch (error) {
-                console.error("Error detallado de conexión:", error);
+                console.error(error);
                 actualizarEstatusConexion('error', 'Error de Conexión');
-                
-                // Mensaje de guía amigable
                 Swal.fire({
                     icon: 'error',
-                    title: 'Sincronización Pendiente',
-                    text: 'Haz clic en el botón de "Error de Conexión" en la esquina superior derecha para validar o pegar tu enlace correcto de Apps Script.',
+                    title: 'Error de Conexión',
+                    text: 'Asegúrate de que la URL de Apps Script esté bien escrita y que la hayas implementado como "Cualquiera" (Anyone).',
                     confirmButtonColor: '#1e3a8a'
                 });
             }
         }
 
-        // Permite cambiar la URL dinámicamente si la macro cambia
-        function abrirConfiguradorURL() {
-            Swal.fire({
-                title: 'Configurar URL de Google Apps Script',
-                input: 'url',
-                inputLabel: 'Pega la URL de ejecución generada que termina en /exec',
-                inputValue: WEB_APP_URL,
-                showCancelButton: true,
-                confirmButtonColor: '#16a34a',
-                confirmButtonText: 'Guardar y Conectar',
-                cancelButtonText: 'Cancelar'
-            }).then((result) => {
-                if (result.isConfirmed && result.value) {
-                    localStorage.setItem("url_sheets_actual", result.value.trim());
-                    window.location.reload();
-                }
-            });
-        }
-
         function configurarFiltroEventos(datos) {
             const selectEvento = document.getElementById('filter-evento');
             if(!selectEvento) return;
-            
-            // Limpiar opciones anteriores manteniendo la primera
             selectEvento.innerHTML = '<option value="">Todos los Eventos / Fechas</option>';
-            
             const eventosUnicos = [...new Set(datos.map(t => t.evento_registro))].filter(e => e && e !== "N/A");
-            
             eventosUnicos.sort().forEach(evento => {
                 const option = document.createElement('option');
                 option.value = evento;
@@ -237,8 +184,8 @@
         }
 
         function enviarInvitacionWhatsApp(nombre, celular, experiencia) {
-            if (!celular || celular.trim() === "" || celular == "963705172") {
-                Swal.fire({ icon: 'warning', title: 'Sin Celular', text: 'El trabajador no tiene un número celular válido asignado en la pestaña.', confirmButtonColor: '#1e3a8a' });
+            if (!celular || celular.trim() === "") {
+                Swal.fire({ icon: 'warning', title: 'Sin Celular', text: 'El trabajador no tiene un número registrado.', confirmButtonColor: '#1e3a8a' });
                 return;
             }
             const mensaje = `¡Hola *${nombre}*! ✨ Te escribimos para hacerte la invitación formal a formar parte de nuestro equipo de trabajo para el inicio de nuestra *Campaña de Cosecha de Arándanos 2026* 🍇. Sabemos de tu gran desempeño en *${experiencia}* y queremos contar contigo. Confírmanos tu respuesta por este medio. ¡Te esperamos!`;
@@ -248,12 +195,10 @@
         function renderizarComponentes(datos) {
             const gridTarjetas = document.getElementById('grid-tarjetas');
             const tablaCuerpo = document.getElementById('tabla-cuerpo');
-            
             if(!gridTarjetas || !tablaCuerpo) return;
             
             gridTarjetas.innerHTML = "";
             tablaCuerpo.innerHTML = "";
-
             document.getElementById('txt-total').innerText = datos.length;
 
             if (datos.length === 0) {
@@ -264,13 +209,12 @@
 
             datos.forEach(t => {
                 const puestoColor = String(t.tipo_trabajo).toUpperCase().includes("PACKING") ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800";
-                
                 let catColor = "bg-slate-100 text-slate-700";
                 if (String(t.categorizacion).toUpperCase().includes("EXCELENTE")) catColor = "bg-blue-100 text-blue-800 font-bold";
                 else if (String(t.categorizacion).toUpperCase().includes("BUENO")) catColor = "bg-indigo-100 text-indigo-800";
                 else if (String(t.categorizacion).toUpperCase().includes("NUEVO")) catColor = "bg-purple-100 text-purple-800";
 
-                // --- VISTA TARJETAS (MÓVIL) ---
+                // Tarjeta Móvil
                 const htmlTarjeta = `
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
                         <div class="p-5">
@@ -294,7 +238,7 @@
                 `;
                 gridTarjetas.insertAdjacentHTML('beforeend', htmlTarjeta);
 
-                // --- VISTA TABLA MAESTRA (PC) ---
+                // Fila de Tabla
                 const htmlFila = `
                     <tr class="hover:bg-slate-50/80 transition-all">
                         <td class="px-6 py-4 font-semibold text-slate-800 uppercase">${t.nombre}</td>
@@ -331,12 +275,12 @@
                 const cumplePuesto = puestoSel === "" || String(t.tipo_trabajo).toUpperCase().includes(puestoSel);
                 const cumpleCat = catSel === "" || String(t.categorizacion).toUpperCase().includes(catSel);
                 const cumpleEvento = eventoSel === "" || String(t.evento_registro) === eventoSel;
-
                 return cumpleTexto && cumplePuesto && cumpleCat && cumpleEvento;
             });
-
             renderizarComponentes(datosFiltrados);
         }
 
         window.addEventListener('DOMContentLoaded', cargarDatos);
     </script>
+</body>
+</html>
