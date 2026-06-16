@@ -120,8 +120,8 @@
     </footer>
 
     <script>
-        // ⚠️ REEMPLAZA ESTA URL CON TU LINK DE APPS SCRIPT TERMINADO EN /exec
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuLsryT-GowjyJg-vNnVhj4pxxwCd5DhRogA6sL1tyoAcN6CJG-UPB_7Xrxm2p6BQX/exec";
+        // Pega aquí la NUEVA URL que copiaste al hacer la nueva implementación en Google Sheets
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxZb_y-0z7jSCjYyDJLNSOXFs7L8fwHbRo3O6ttJNULE_U6CXilHBz_Zps1-8DTRxaV/exec";
 
         let listaTrabajadores = [];
 
@@ -140,7 +140,7 @@
             }
         }
 
-        // FUNCIÓN GLOBAL CRÍTICA: Recibe la información saltándose el bloqueo local del navegador
+        // Esta función global captura la respuesta sin bloqueos del explorador
         window.recibirDatosSincronizados = function(datos) {
             listaTrabajadores = datos;
             actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
@@ -151,16 +151,17 @@
         function cargarDatos() {
             actualizarEstatusConexion('cargando', 'Conectando...');
             try {
-                // Inyección dinámica de script para bypass de CORS local (file:///)
-                const script = document.getElementById('script-jsonp') || document.createElement('script');
-                script.id = 'script-jsonp';
+                // Eliminamos cualquier petición previa inyectada
+                const previo = document.getElementById('script-jsonp-conn');
+                if (previo) previo.remove();
+
+                const script = document.createElement('script');
+                script.id = 'script-jsonp-conn';
                 script.src = `${WEB_APP_URL}?callback=recibirDatosSincronizados&_=${new Date().getTime()}`;
                 script.onerror = function() {
                     actualizarEstatusConexion('error', 'Error de Conexión');
                 };
-                if (!document.getElementById('script-jsonp')) {
-                    document.body.appendChild(script);
-                }
+                document.body.appendChild(script);
             } catch (error) {
                 console.error(error);
                 actualizarEstatusConexion('error', 'Error de Conexión');
