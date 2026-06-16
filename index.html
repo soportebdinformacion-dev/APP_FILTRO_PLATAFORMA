@@ -24,14 +24,14 @@
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">FRUSAN</h1>
+                    <h1 class="text-2xl font-bold tracking-tight">Agrícola Huarmey | fundo Frusan</h1>
                     <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
+                <span id="status-text" class="text-red-100">Estableciendo conexión a la base de datos...</span>
             </div>
         </div>
     </header>
@@ -144,7 +144,7 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa con Google Sheets Frusan...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base de datos de Agrícola Huarmey...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
@@ -162,6 +162,27 @@
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
 
+        // Lector robusto que procesa correctamente comas internas envueltas en comillas
+        function dividirFilaCSV(linea) {
+            const campos = [];
+            let dentroDeComillas = false;
+            let campoActual = '';
+
+            for (let i = 0; i < linea.length; i++) {
+                const caracter = linea[i];
+                if (caracter === '"') {
+                    dentroDeComillas = !dentroDeComillas;
+                } else if (caracter === ',' && !dentroDeComillas) {
+                    campos.push(campoActual.trim());
+                    campoActual = '';
+                } else {
+                    campoActual += caracter;
+                }
+            }
+            campos.push(campoActual.trim());
+            return campos;
+        }
+
         function parsearCSV(textoCSV) {
             const lineas = textoCSV.split(/\r?\n/);
             const resultado = [];
@@ -169,37 +190,25 @@
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 
-                // Regex avanzado para capturar columnas separadas por comas respetando comillas
-                const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                
-                // Función de limpieza profunda para eliminar comillas molestas de los extremos
-                const limpiar = (valor) => {
-                    if (!valor) return "";
-                    let v = valor.trim();
-                    if (v.startsWith('"') && v.endsWith('"')) {
-                        v = v.substring(1, v.length - 1);
-                    }
-                    return v.trim();
-                };
-                
-                const nombre = limpiar(celdas[0]);
-                const dni = limpiar(celdas[8]);
+                const celdas = dividirFilaCSV(lineas[i]);
+                const nombre = celdas[0];
+                const dni = celdas[8];
                 
                 if (!nombre && !dni) continue;
 
                 resultado.push({
                     nombre: nombre.toUpperCase(),
-                    sexo: limpiar(celdas[1]) || "N/A",
-                    celular: limpiar(celdas[2]),
-                    whatsapp: limpiar(celdas[3]),
-                    tipo_trabajo: (limpiar(celdas[4]) || "CAMPO").toUpperCase(),
-                    modalidad: (limpiar(celdas[5]) || "N/A").toUpperCase(),
-                    experiencia: (limpiar(celdas[6]) || "NINGUNO").toUpperCase(),
-                    zona: (limpiar(celdas[7]) || "N/A").toUpperCase(),
-                    dni: dni,
-                    categorizacion: (limpiar(celdas[9]) || "PERSONAL NUEVO").toUpperCase(),
-                    total_dias_laborados: limpiar(celdas[10]) || "0",
-                    evento_registro: limpiar(celdas[11]) || "N/A"
+                    sexo: celdas[1] || "N/A",
+                    celular: celdas[2] || "",
+                    whatsapp: celdas[3] || "",
+                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase(),
+                    modalidad: (celdas[5] || "N/A").toUpperCase(),
+                    experiencia: (celdas[6] || "NINGUNO").toUpperCase(),
+                    zona: (celdas[7] || "N/A").toUpperCase(),
+                    dni: dni || "",
+                    categorizacion: (celdas[9] || "PERSONAL NUEVO").toUpperCase(),
+                    total_dias_laborados: celdas[10] || "0",
+                    evento_registro: celdas[11] || "N/A"
                 });
             }
             return resultado;
@@ -244,7 +253,7 @@
             };
             Object.keys(campos).forEach(propiedad => {
                 const selectElement = document.getElementById(campos[propiedad]);
-                selectElement.innerHTML = '<option value="">TODOS</option>'; // Limpiar previos
+                selectElement.innerHTML = '<option value="">TODOS</option>';
                 const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
                 valoresUnicos.forEach(valor => {
                     const opt = document.createElement('option');
@@ -256,9 +265,9 @@
 
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
-            // Corregido para buscar en mayúsculas de manera exacta según la base de datos
-            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL ANTIGUO")).length;
-            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL NUEVO")).length;
+            // Los contadores ahora buscan con flexiblidad por palabras clave (ANTIGUO y NUEVO)
+            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
+            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
             document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
@@ -269,7 +278,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agrícola Huarmey | fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
