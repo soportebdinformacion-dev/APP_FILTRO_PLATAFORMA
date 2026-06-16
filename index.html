@@ -121,8 +121,8 @@
     </footer>
 
     <script>
-        // ⚠️ COLOCA AQUÍ TU URL DE IMPLEMENTACIÓN DE APPS SCRIPT QUE TERMINA EN /exec
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx2atfyrkBN2p9Gy6Hq6MxGeqfX23IYGoF0YlYw8qPmkpANcweDOZZWHukzm4X1Hdr9/exec";
+        // ⚠️ REEMPLAZA ESTA URL CON TU LINK NUEVO DE EJECUCIÓN TERMINADO EN /exec
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwBy5j0SPqMBnrw8dBs_4ZgxuCVGXmhVkuM4xlbiD6AJ1XYMYO2nsBaohCdWrYP7ucZ/exec";
 
         let listaTrabajadores = [];
 
@@ -141,32 +141,34 @@
             }
         }
 
-        async function cargarDatos() {
+        // Función global encargada de recibir la respuesta directa de Google sin pasar por CORS
+        window.recibirDatosSheets = function(datos) {
+            listaTrabajadores = datos;
+            actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
+            configurarFiltroEventos(listaTrabajadores);
+            filtrarPersonal();
+        };
+
+        function cargarDatos() {
             actualizarEstatusConexion('cargando', 'Conectando...');
+            
             try {
-                // Fetch nativo configurado para manejar correctamente las redirecciones seguras de Google
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'GET',
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
-                
-                if (!response.ok) throw new Error("Error de red");
-                
-                listaTrabajadores = await response.json();
-                actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
-                
-                configurarFiltroEventos(listaTrabajadores);
-                filtrarPersonal(); 
+                // Crear un script dinámico para evadir por completo el bloqueo del explorador local
+                const script = document.createElement('script');
+                script.src = `${WEB_APP_URL}?callback=recibirDatosSheets`;
+                script.onerror = function() {
+                    actualizarEstatusConexion('error', 'Error de Conexión');
+                    Swal.fire({
+                        icon: 'error',
+                        title: 'Error de Conexión',
+                        text: 'Verifica la URL asignada y asegúrate de implementar una "Nueva Implementación" con acceso para "Cualquiera" (Anyone).',
+                        confirmButtonColor: '#1e3a8a'
+                    });
+                };
+                document.body.appendChild(script);
             } catch (error) {
                 console.error(error);
                 actualizarEstatusConexion('error', 'Error de Conexión');
-                Swal.fire({
-                    icon: 'error',
-                    title: 'Error de Conexión',
-                    text: 'Asegúrate de que la URL de Apps Script esté bien escrita y que la hayas implementado como "Cualquiera" (Anyone).',
-                    confirmButtonColor: '#1e3a8a'
-                });
             }
         }
 
@@ -214,7 +216,6 @@
                 else if (String(t.categorizacion).toUpperCase().includes("BUENO")) catColor = "bg-indigo-100 text-indigo-800";
                 else if (String(t.categorizacion).toUpperCase().includes("NUEVO")) catColor = "bg-purple-100 text-purple-800";
 
-                // Tarjeta Móvil
                 const htmlTarjeta = `
                     <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
                         <div class="p-5">
@@ -238,7 +239,6 @@
                 `;
                 gridTarjetas.insertAdjacentHTML('beforeend', htmlTarjeta);
 
-                // Fila de Tabla
                 const htmlFila = `
                     <tr class="hover:bg-slate-50/80 transition-all">
                         <td class="px-6 py-4 font-semibold text-slate-800 uppercase">${t.nombre}</td>
