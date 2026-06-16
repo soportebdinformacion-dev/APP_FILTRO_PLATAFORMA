@@ -207,7 +207,7 @@
                     dni: (dni || "").trim(),
                     categorizacion: (celdas[9] || "PERSONAL NUEVO").toUpperCase().trim(),
                     total_dias_laborados: (celdas[10] || "0").trim(),
-                    evento_registro: (celdas[11] || "N/A").trim()
+                    evento_registro: (celdas[11] || "").trim()
                 });
             }
             return resultado;
@@ -266,14 +266,14 @@
             // Total Registros en pantalla
             document.getElementById('stat-total').innerText = datos.length;
             
-            // SOLUCIÓN EXACTA: Personal Antiguo cuenta los registros con valor en EVENTO REGISTRO
+            // LÓGICA CORREGIDA: Cuenta los que SÍ tienen un evento asignado válido en la columna EVENTO REGISTRO
             document.getElementById('stat-antiguo').innerText = datos.filter(t => 
                 t.evento_registro && 
                 t.evento_registro.trim() !== "" && 
                 t.evento_registro.toUpperCase() !== "N/A"
             ).length;
             
-            // Personal Nuevo: Aquellos sin evento de registro asignado
+            // LÓGICA CORREGIDA: Cuenta los que NO tienen evento asignado (celdas vacías) en la columna EVENTO REGISTRO
             document.getElementById('stat-nuevo').innerText = datos.filter(t => 
                 !t.evento_registro || 
                 t.evento_registro.trim() === "" || 
@@ -307,9 +307,10 @@
             noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                // El badge visual se pinta según si tiene o no evento de registro asignado
+                // Estilo del badge adaptado dinámicamente si tiene evento (Antiguo) o no (Nuevo)
                 const tieneEvento = t.evento_registro && t.evento_registro.trim() !== "" && t.evento_registro.toUpperCase() !== "N/A";
                 const badgeStyle = tieneEvento ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
+                
                 const filaHTML = `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="py-3 px-4 text-center">
@@ -319,8 +320,8 @@
                         </td>
                         <td class="py-3 px-4 font-semibold text-slate-800 uppercase tracking-tight">${t.nombre}</td>
                         <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
-                        <td class="py-3 px-4"><span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${t.categorizacion}</span></td>
-                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro}</td>
+                        <td class="py-3 px-4"><span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${tieneEvento ? "PERSONAL ANTIGUO" : "PERSONAL NUEVO"}</span></td>
+                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro || "N/A"}</td>
                         <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
                         <td class="py-3 px-4 text-xs font-bold text-slate-500">${t.tipo_trabajo}</td>
                         <td class="py-3 px-4 text-slate-600 uppercase">${t.zona}</td>
@@ -355,7 +356,7 @@
             if (datosFiltradosActuales.length === 0) return;
             const datosAcondicionados = datosFiltradosActuales.map(t => ({
                 "Apellidos y Nombres": t.nombre, "DNI": t.dni, "Sexo": t.sexo, "Celular": t.celular, "WhatsApp": t.whatsapp,
-                "Categorización": t.categorizacion, "Evento Registro": t.evento_registro, "Modalidad": t.modalidad,
+                "Categorización": t.evento_registro ? "PERSONAL ANTIGUO" : "PERSONAL NUEVO", "Evento Registro": t.evento_registro || "N/A", "Modalidad": t.modalidad,
                 "Tipo de Trabajo": t.tipo_trabajo, "Zona": t.zona, "Experiencia": t.experiencia, "Días Laborados": parseInt(t.total_dias_laborados) || 0
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
