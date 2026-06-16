@@ -8,12 +8,11 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
         body { font-family: 'Outfit', sans-serif; background-color: #fcf8f8; }
         .brand-gradient { background: linear-gradient(135deg, #7c120a 0%, #b92519 100%); }
-        .text-brand { color: #b92519; }
-        .border-brand { border-color: #b92519; }
     </style>
 </head>
 <body class="text-slate-800">
@@ -145,19 +144,19 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Estableciendo canal seguro con la base de datos Frusan...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Cargando base de datos Frusan...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
                 <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-                <p class="text-sm">Ningún trabajador coincide con los filtros aplicados.</p>
+                <p class="text-sm">Ningún trabajador coincide con los criterios de filtrado actuales.</p>
             </div>
         </div>
     </main>
 
     <script>
-        // ⚠️ PEGA AQUÍ LA NUEVA URL QUE TE DÉ EL PASO 9 TRAS CAMBIAR LOS PERMISOS A "CUALQUIERA"
-        const API_URL = "https://script.google.com/macros/s/AKfycbxEqfNDvds6yPP4ElBaoARaH8ZC_HuZJhbEMqQ2w77k6TcrsAjdTNyPRkCsiOfS-5qy/exec"; 
+        // REEMPLAZA ESTA URL CON TU ENLACE ACTUALIZADO GENERADO EN APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbwEauuUZjQJ8h8R4SfzagHykj0cs81vldLlCkgPHlxOHLLh-vepi0GeNtb60peJ3QoE/exec"; 
         
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
@@ -168,9 +167,9 @@
             const statusContainer = document.getElementById('connection-status');
 
             try {
-                const response = await fetch(API_URL);
-                if (response.status === 401) throw new Error("Error 401: Falta cambiar el acceso a 'Cualquiera' en Apps Script.");
-                if (!response.ok) throw new Error('Error en la respuesta de la API');
+                // Fetch directo sin parámetros extras para eludir restricciones severas corporativas
+                const response = await fetch(API_URL, { method: 'GET', mode: 'cors' });
+                if (!response.ok) throw new Error('Error de enlace físico de red');
                 
                 listaTrabajadores = await response.json();
                 datosFiltradosActuales = [...listaTrabajadores];
@@ -184,16 +183,19 @@
                 renderizarTabla(listaTrabajadores);
 
             } catch (error) {
-                console.error(error);
+                console.error("Detalle del error:", error);
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
-                statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
-                statusText.innerText = "Sin conexión (Error 401)";
+                statusIcon.className = "fa-solid fa-triangle-exclamation text-red-400 text-sm";
+                statusText.innerText = "Error de Red Local";
 
                 document.getElementById('loading-state').innerHTML = `
-                    <div class="text-center text-red-500 p-6 max-w-md mx-auto">
-                        <i class="fa-solid fa-lock text-3xl mb-2"></i>
-                        <p class="font-bold text-sm">Error de Acceso (401 Unauthorized)</p>
-                        <p class="text-xs text-slate-500 mt-2 text-left">Tu código web funciona bien, pero Google bloquea la conexión de red. Abre tu Apps Script, haz clic en <b>Implementar -> Gestionar implementaciones -> Editar (Lápiz)</b> y cambia el campo <b>'Quién tiene acceso'</b> a <b>'Cualquiera'</b>.</p>
+                    <div class="text-center text-red-600 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
+                        <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
+                        <p class="font-bold text-sm">Error: ERR_NAME_NOT_RESOLVED</p>
+                        <p class="text-xs text-slate-600 mt-2 text-left leading-relaxed">
+                            Tu navegador no logra encontrar la dirección de Google en esta red. Esto es causado por el <b>firewall o la red de la empresa</b>. <br><br>
+                            👉 <b>Prueba rápida de control:</b> Abre este mismo archivo de diseño en tu teléfono móvil desconectado del Wi-Fi de la oficina (usando tus datos móviles). Si ahí conecta, el bloqueo está en los routers o la red de tu oficina.
+                        </p>
                     </div>
                 `;
             }
@@ -227,7 +229,7 @@
 
         function enviarInvitacionWhatsApp(trabajador) {
             if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número no disponible.' });
+                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número no disponible en la ficha.' });
                 return;
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
@@ -300,7 +302,7 @@
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal");
+            XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal Filtrado");
             XLSX.writeFile(libroTrabajo, `Reporte_Personal_Frusan_2026.xlsx`);
         }
 
