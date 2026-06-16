@@ -120,8 +120,8 @@
     </footer>
 
     <script>
-        // Coloca aquí tu URL de Apps Script de Google Sheets
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJqoa55z51yGKt_qcSgJt_Pv1awJsGiBQh5GrWYaPvUmgxO14hLxhDpKvzLh3TRzKi/exec";
+        // ⚠️ REEMPLAZA ESTA URL CON TU LINK DE APPS SCRIPT TERMINADO EN /exec
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzuLsryT-GowjyJg-vNnVhj4pxxwCd5DhRogA6sL1tyoAcN6CJG-UPB_7Xrxm2p6BQX/exec";
 
         let listaTrabajadores = [];
 
@@ -140,22 +140,27 @@
             }
         }
 
-        async function cargarDatos() {
+        // FUNCIÓN GLOBAL CRÍTICA: Recibe la información saltándose el bloqueo local del navegador
+        window.recibirDatosSincronizados = function(datos) {
+            listaTrabajadores = datos;
+            actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
+            configurarFiltroEventos(listaTrabajadores);
+            filtrarPersonal();
+        };
+
+        function cargarDatos() {
             actualizarEstatusConexion('cargando', 'Conectando...');
             try {
-                const response = await fetch(WEB_APP_URL, {
-                    method: 'GET',
-                    mode: 'cors',
-                    redirect: 'follow'
-                });
-                
-                if (!response.ok) throw new Error("Error de red");
-                
-                listaTrabajadores = await response.json();
-                actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
-                
-                configurarFiltroEventos(listaTrabajadores);
-                filtrarPersonal(); 
+                // Inyección dinámica de script para bypass de CORS local (file:///)
+                const script = document.getElementById('script-jsonp') || document.createElement('script');
+                script.id = 'script-jsonp';
+                script.src = `${WEB_APP_URL}?callback=recibirDatosSincronizados&_=${new Date().getTime()}`;
+                script.onerror = function() {
+                    actualizarEstatusConexion('error', 'Error de Conexión');
+                };
+                if (!document.getElementById('script-jsonp')) {
+                    document.body.appendChild(script);
+                }
             } catch (error) {
                 console.error(error);
                 actualizarEstatusConexion('error', 'Error de Conexión');
