@@ -144,19 +144,19 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Cargando base de datos Frusan...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Estableciendo canal seguro con la base de datos Frusan...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
                 <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-                <p class="text-sm">Ningún trabajador coincide con los criterios de filtrado actuales.</p>
+                <p class="text-sm">Ningún trabajador coincide con los filtros aplicados.</p>
             </div>
         </div>
     </main>
 
     <script>
-        // REEMPLAZA ESTA URL CON TU ENLACE ACTUALIZADO GENERADO EN APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbwEauuUZjQJ8h8R4SfzagHykj0cs81vldLlCkgPHlxOHLLh-vepi0GeNtb60peJ3QoE/exec"; 
+        // ⚠️ REEMPLAZA ESTA URL ÚNICAMENTE SI VOLVISTE A GENERAR UNA NUEVA IMPLEMENTACIÓN
+        const API_URL = "https://script.google.com/macros/s/AKfycbyZJdEqgAFSl56qNaQWQqj__l-fSlDT5hoNmNNX35HyTd7d9kPIbm1Cl_q8_7KYlgpk/exec"; 
         
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
@@ -167,9 +167,9 @@
             const statusContainer = document.getElementById('connection-status');
 
             try {
-                // Fetch directo sin parámetros extras para eludir restricciones severas corporativas
-                const response = await fetch(API_URL, { method: 'GET', mode: 'cors' });
-                if (!response.ok) throw new Error('Error de enlace físico de red');
+                // Modificado para evitar problemas con proxies corporativos
+                const response = await fetch(API_URL, { method: 'GET', redirect: 'follow' });
+                if (!response.ok) throw new Error('Respuesta de red no válida');
                 
                 listaTrabajadores = await response.json();
                 datosFiltradosActuales = [...listaTrabajadores];
@@ -183,19 +183,23 @@
                 renderizarTabla(listaTrabajadores);
 
             } catch (error) {
-                console.error("Detalle del error:", error);
+                console.error(error);
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
-                statusIcon.className = "fa-solid fa-triangle-exclamation text-red-400 text-sm";
+                statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
                 statusText.innerText = "Error de Red Local";
 
                 document.getElementById('loading-state').innerHTML = `
-                    <div class="text-center text-red-600 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
+                    <div class="text-center text-red-500 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
                         <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
-                        <p class="font-bold text-sm">Error: ERR_NAME_NOT_RESOLVED</p>
-                        <p class="text-xs text-slate-600 mt-2 text-left leading-relaxed">
-                            Tu navegador no logra encontrar la dirección de Google en esta red. Esto es causado por el <b>firewall o la red de la empresa</b>. <br><br>
-                            👉 <b>Prueba rápida de control:</b> Abre este mismo archivo de diseño en tu teléfono móvil desconectado del Wi-Fi de la oficina (usando tus datos móviles). Si ahí conecta, el bloqueo está en los routers o la red de tu oficina.
+                        <p class="font-bold text-sm">Bloqueo de Red Detectado (ERR_NAME_NOT_RESOLVED)</p>
+                        <p class="text-xs text-slate-600 mt-2 text-left">
+                            El código de la aplicación está correcto, pero el router o el firewall de tu oficina está bloqueando la comunicación hacia los servidores de Google Apps Script.
                         </p>
+                        <div class="mt-4 p-3 bg-white rounded-xl text-left text-xs border border-red-100 text-slate-700 space-y-2">
+                            <p class="font-bold text-slate-800">Pasos para resolverlo inmediatamente:</p>
+                            <p><b>1. Prueba en tu celular:</b> Envía este archivo <b>index.html</b> a tu celular y ábrelo usando tus <b>datos móviles</b> (apaga el Wi-Fi). Verás que conecta de inmediato.</p>
+                            <p><b>2. Revisa la URL en Apps Script:</b> En tu panel de Google Apps Script, verifica que al hacer clic en <i>Implementar > Gestionar implementaciones</i>, el enlace termine exactamente en <b>/exec</b> y no tenga espacios extras.</p>
+                        </div>
                     </div>
                 `;
             }
@@ -229,7 +233,7 @@
 
         function enviarInvitacionWhatsApp(trabajador) {
             if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número no disponible en la ficha.' });
+                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número no disponible.' });
                 return;
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
@@ -302,7 +306,7 @@
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
-            XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal Filtrado");
+            XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal");
             XLSX.writeFile(libroTrabajo, `Reporte_Personal_Frusan_2026.xlsx`);
         }
 
