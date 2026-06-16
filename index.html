@@ -120,7 +120,8 @@
     </footer>
 
     <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx1mAC8ABBZ4xyBkpgArQdQAW-pse-HdsiiPsWlFMptcaPA_Tcf-SZtUeAmvOWacbDH/exec";
+        // Coloca aquí tu URL de Apps Script de Google Sheets
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxJqoa55z51yGKt_qcSgJt_Pv1awJsGiBQh5GrWYaPvUmgxO14hLxhDpKvzLh3TRzKi/exec";
 
         let listaTrabajadores = [];
 
@@ -199,7 +200,6 @@
             }
 
             datos.forEach(t => {
-                // Estilos visuales dinámicos de tu interfaz original
                 const puestoColor = String(t.tipo_trabajo).toUpperCase().includes("PACKING") ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800";
                 
                 let catColor = "bg-slate-100 text-slate-700";
