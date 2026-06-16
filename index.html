@@ -144,22 +144,63 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Estableciendo canal seguro con la base de datos Frusan...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa con Google Sheets Frusan...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
                 <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-                <p class="text-sm">Ningún trabajador coincide con los filtros aplicados.</p>
+                <p class="text-sm">Ningún trabajador coincide con la búsqueda.</p>
             </div>
         </div>
     </main>
 
     <script>
-        // ⚠️ REEMPLAZA ESTA URL ÚNICAMENTE SI VOLVISTE A GENERAR UNA NUEVA IMPLEMENTACIÓN
-        const API_URL = "https://script.google.com/macros/s/AKfycbyZJdEqgAFSl56qNaQWQqj__l-fSlDT5hoNmNNX35HyTd7d9kPIbm1Cl_q8_7KYlgpk/exec"; 
+        // ID de tu documento original de Google Sheets obtenido de tus capturas
+        const SHEET_ID = "1eGrz1am48_579m7mJ24Yqq8ldbwkMlzgH8cqLq81AXs";
+        // Nombre exacto de la pestaña donde residen los datos
+        const SHEET_NAME = "https://script.google.com/macros/s/AKfycbwvr8YVwqe0FamCdEaCgId2QJRAf867GvjCxZT54_MLz4HjVbKQFW5Rp9iPfBiN-9Gr/exec";
         
+        // Generación automática del enlace directo CSV de Google Sheets para eludir intermediarios
+        const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
+
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
+
+        // Función nativa veloz para parsear el formato estándar CSV de Google sin librerías externas pesadas
+        function parsearCSV(textoCSV) {
+            const lineas = textoCSV.split(/\r?\n/);
+            const resultado = [];
+            
+            for (let i = 1; i < lineas.length; i++) {
+                if (!lineas[i].trim()) continue;
+                
+                // Expresión regular para separar por comas respetando los textos con comillas internas
+                const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                const limpiar = (valor) => valor ? valor.replace(/^"| font-mono "$/g, '').trim() : "";
+                
+                // Mapeo correlativo exacto según el orden de tus columnas (A hasta L)
+                const nombre = limpiar(celdas[0]);
+                const dni = limpiar(celdas[8]);
+                
+                if (!nombre && !dni) continue; // Evita el procesamiento de filas huérfanas
+
+                resultado.push({
+                    nombre: nombre.toUpperCase(),
+                    sexo: limpiar(celdas[1]) || "N/A",
+                    celular: limpiar(celdas[2]),
+                    whatsapp: limpiar(celdas[3]),
+                    tipo_trabajo: (limpiar(celdas[4]) || "CAMPO").toUpperCase(),
+                    modalidad: (limpiar(celdas[5]) || "N/A").toUpperCase(),
+                    experiencia: (limpiar(celdas[6]) || "NINGUNO").toUpperCase(),
+                    zona: (limpiar(celdas[7]) || "N/A").toUpperCase(),
+                    dni: dni,
+                    categorizacion: (limpiar(celdas[9]) || "PERSONAL NUEVO").toUpperCase(),
+                    total_dias_laborados: limpiar(celdas[10]) || "0",
+                    evento_registro: limpiar(celdas[11]) || "N/A"
+                });
+            }
+            return resultado;
+        }
 
         async function cargarDatos() {
             const statusIcon = document.getElementById('status-icon');
@@ -167,16 +208,16 @@
             const statusContainer = document.getElementById('connection-status');
 
             try {
-                // Modificado para evitar problemas con proxies corporativos
-                const response = await fetch(API_URL, { method: 'GET', redirect: 'follow' });
-                if (!response.ok) throw new Error('Respuesta de red no válida');
+                const response = await fetch(API_URL);
+                if (!response.ok) throw new Error('Fallo en la comunicación con el servidor de archivos.');
                 
-                listaTrabajadores = await response.json();
+                const textoCSV = await response.text();
+                listaTrabajadores = parsearCSV(textoCSV);
                 datosFiltradosActuales = [...listaTrabajadores];
                 
                 statusContainer.className = "flex items-center gap-2 bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-medium text-emerald-400";
                 statusIcon.className = "fa-solid fa-circle text-emerald-400 text-[10px] animate-pulse";
-                statusText.innerText = "Conectado a Google Sheets";
+                statusText.innerText = "Conectado a Google Sheets Directo";
                 document.getElementById('loading-state').classList.add('hidden');
                 
                 configurarFiltrosDinamicos(listaTrabajadores);
@@ -186,20 +227,15 @@
                 console.error(error);
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
                 statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
-                statusText.innerText = "Error de Red Local";
+                statusText.innerText = "Error de Acceso Directo";
 
                 document.getElementById('loading-state').innerHTML = `
                     <div class="text-center text-red-500 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
-                        <i class="fa-solid fa-network-wired text-3xl mb-2"></i>
-                        <p class="font-bold text-sm">Bloqueo de Red Detectado (ERR_NAME_NOT_RESOLVED)</p>
-                        <p class="text-xs text-slate-600 mt-2 text-left">
-                            El código de la aplicación está correcto, pero el router o el firewall de tu oficina está bloqueando la comunicación hacia los servidores de Google Apps Script.
+                        <i class="fa-solid fa-file-excel text-3xl mb-2"></i>
+                        <p class="font-bold text-sm">Error de lectura de archivo</p>
+                        <p class="text-xs text-slate-600 mt-2 text-left leading-relaxed">
+                            Asegúrate de haber completado el <b>Paso 1</b>: Abre tu Google Sheets original, haz clic en <b>Compartir</b> en la esquina superior derecha y cambia el acceso general a <b>'Cualquier persona con el enlace'</b> en modo Lector. Esto permitirá que este panel lea los datos al instante.
                         </p>
-                        <div class="mt-4 p-3 bg-white rounded-xl text-left text-xs border border-red-100 text-slate-700 space-y-2">
-                            <p class="font-bold text-slate-800">Pasos para resolverlo inmediatamente:</p>
-                            <p><b>1. Prueba en tu celular:</b> Envía este archivo <b>index.html</b> a tu celular y ábrelo usando tus <b>datos móviles</b> (apaga el Wi-Fi). Verás que conecta de inmediato.</p>
-                            <p><b>2. Revisa la URL en Apps Script:</b> En tu panel de Google Apps Script, verifica que al hacer clic en <i>Implementar > Gestionar implementaciones</i>, el enlace termine exactamente en <b>/exec</b> y no tenga espacios extras.</p>
-                        </div>
                     </div>
                 `;
             }
@@ -233,7 +269,7 @@
 
         function enviarInvitacionWhatsApp(trabajador) {
             if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número no disponible.' });
+                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número de contacto no registrado en el documento.' });
                 return;
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
