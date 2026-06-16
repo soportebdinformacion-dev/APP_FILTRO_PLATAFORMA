@@ -196,18 +196,18 @@
                 if (!nombre && !dni) continue;
 
                 resultado.push({
-                    nombre: nombre.toUpperCase(),
-                    sexo: celdas[1] || "N/A",
-                    celular: celdas[2] || "",
-                    whatsapp: celdas[3] || "",
-                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase(),
-                    modalidad: (celdas[5] || "N/A").toUpperCase(),
-                    experiencia: (celdas[6] || "NINGUNO").toUpperCase(),
-                    zona: (celdas[7] || "N/A").toUpperCase(),
-                    dni: dni || "",
-                    categorizacion: (celdas[9] || "PERSONAL NUEVO").toUpperCase(),
-                    total_dias_laborados: celdas[10] || "0",
-                    evento_registro: celdas[11] || "N/A"
+                    nombre: nombre.toUpperCase().trim(),
+                    sexo: (celdas[1] || "N/A").trim(),
+                    celular: (celdas[2] || "").trim(),
+                    whatsapp: (celdas[3] || "").trim(),
+                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase().trim(),
+                    modalidad: (celdas[5] || "N/A").toUpperCase().trim(),
+                    experiencia: (celdas[6] || "NINGUNO").toUpperCase().trim(),
+                    zona: (celdas[7] || "N/A").toUpperCase().trim(),
+                    dni: (dni || "").trim(),
+                    categorizacion: (celdas[9] || "PERSONAL NUEVO").toUpperCase().trim(),
+                    total_dias_laborados: (celdas[10] || "0").trim(),
+                    evento_registro: (celdas[11] || "N/A").trim()
                 });
             }
             return resultado;
@@ -264,10 +264,11 @@
 
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
-            // Corrección ortográfica crítica realizada aquí: "ANTIGUO" en lugar de "ANTINGUO"
-            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
-            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
-            document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
+            
+            // Corrección ultra-robusta de conteo usando expresiones regulares y limpieza de extremos
+            document.getElementById('stat-antiguo').innerText = datos.filter(t => /ANTIGUO/.test(t.categorizacion)).length;
+            document.getElementById('stat-nuevo').innerText = datos.filter(t => /NUEVO/.test(t.categorizacion)).length;
+            document.getElementById('stat-campamento').innerText = datos.filter(t => /CAMPAMENTO/.test(t.modalidad)).length;
         }
 
         function enviarInvitacionWhatsApp(trabajador) {
@@ -293,7 +294,7 @@
             noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                const esAntiguo = t.categorizacion.includes("ANTIGUO");
+                const esAntiguo = /ANTIGUO/.test(t.categorizacion);
                 const badgeStyle = esAntiguo ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
                 const filaHTML = `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
@@ -344,7 +345,7 @@
                 "Tipo de Trabajo": t.tipo_trabajo, "Zona": t.zona, "Experiencia": t.experiencia, "Días Laborados": parseInt(t.total_dias_laborados) || 0
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
-            const libroTrabajo = XLSX.utils.book_new();
+            const libroTrabajo = XLSX.book_new();
             XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal");
             XLSX.writeFile(libroTrabajo, `Reporte_Personal_Frusan_2026.xlsx`);
         }
