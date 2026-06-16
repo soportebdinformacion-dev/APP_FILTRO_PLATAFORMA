@@ -24,14 +24,14 @@
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">AGrícola Haurmey, fundo Frusan</h1>
+                    <h1 class="text-2xl font-bold tracking-tight">Agrícola Haurmey, fundo Frusan</h1>
                     <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
+                <span id="status-text" class="text-red-100">Estableciendo conexión...</span>
             </div>
         </div>
     </header>
@@ -274,7 +274,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agricola Huarmey, fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
