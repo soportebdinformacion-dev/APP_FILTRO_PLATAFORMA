@@ -4,45 +4,59 @@
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
     <title>Portal Frusan - Control de Cosecha 2026</title>
+    <!-- Tailwind CSS para Estilos -->
     <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Iconos de FontAwesome -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
+    <!-- Alertas de SweetAlert2 -->
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <!-- Librería oficial para Exportar a Excel (.xlsx) nativo -->
+    <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script>
+    
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700&display=swap');
-        body { font-family: 'Outfit', sans-serif; background-color: #f8fafc; }
-        .brand-gradient { background: linear-gradient(135deg, #0b1f3b 0%, #1e3a8a 100%); }
+        body { font-family: 'Outfit', sans-serif; background-color: #fcf8f8; }
+        /* Rojo elegante Frusan extraído de ICO FRUSAN_2.png */
+        .brand-gradient { background: linear-gradient(135deg, #7c120a 0%, #b92519 100%); }
+        .text-brand { color: #b92519; }
+        .border-brand { border-color: #b92519; }
+        .focus-brand:focus { --tw-ring-color: #b92519; border-color: #b92519; }
     </style>
 </head>
 <body class="text-slate-800">
 
+    <!-- Encabezado Corporativo -->
     <header class="brand-gradient text-white shadow-md">
-        <div class="max-w-[95%] mx-auto px-4 py-5 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="max-w-[95%] mx-auto px-4 py-4 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex items-center gap-4 text-center sm:text-left">
-                <div class="bg-white p-2 rounded-xl shadow-inner flex items-center justify-center w-12 h-12">
-                    <i class="fa-solid fa-wheat-awn text-[#0b1f3b] text-2xl"></i>
+                <!-- Contenedor del Logo de la Empresa ICO FRUSAN_2.png -->
+                <div class="bg-white p-1.5 rounded-xl shadow-md flex items-center justify-center w-14 h-14 overflow-hidden">
+                    <img src="ICO FRUSAN_2.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold tracking-tight">FRUSAN</h1>
-                    <p class="text-xs text-slate-300 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
+                    <h1 class="text-2xl font-bold tracking-tight">FRUSAN</h1>
+                    <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
-            <div id="connection-status" class="flex items-center gap-2 bg-slate-900/40 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
+            <!-- Estado de la conexión -->
+            <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-slate-200">Estableciendo conexión...</span>
+                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
             </div>
         </div>
     </header>
 
     <main class="max-w-[95%] mx-auto my-6 px-2">
         
+        <!-- Tarjetas Estadísticas con acento de color de la marca -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
                     <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Encontrados</p>
                     <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
-                <div class="bg-blue-50 text-blue-600 p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
+                <div class="bg-red-50 text-[#b92519] p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
@@ -67,10 +81,18 @@
             </div>
         </div>
 
+        <!-- Sección de Filtros y Botón de Descarga -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 space-y-4">
-            <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
-                <i class="fa-solid fa-sliders text-[#0b1f3b]"></i> Filtros de Búsqueda Avanzada
-            </h3>
+            <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
+                    <i class="fa-solid fa-sliders text-[#b92519]"></i> Filtros de Búsqueda Avanzada
+                </h3>
+                
+                <!-- Botón de Exportar diseñado estéticamente con el color de la empresa -->
+                <button onclick="exportarExcel()" class="inline-flex items-center justify-center gap-2 bg-[#b92519] hover:bg-[#961c12] text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition-all duration-200 transform active:scale-95">
+                    <i class="fa-solid fa-file-excel text-sm"></i> Exportar a *.xlsx
+                </button>
+            </div>
             
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
                 <div class="xl:col-span-2">
@@ -78,47 +100,48 @@
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
                         <input type="text" id="search-bar" oninput="filtrarPersonal()" placeholder="Escribe para buscar..." 
-                               class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]"/>
+                               class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]"/>
                     </div>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Categorización</label>
-                    <select id="filter-categorizacion" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                    <select id="filter-categorizacion" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
                         <option value="">TODOS</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Evento Registro</label>
-                    <select id="filter-evento" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                    <select id="filter-evento" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
                         <option value="">TODOS</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Modalidad</label>
-                    <select id="filter-modalidad" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                    <select id="filter-modalidad" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
                         <option value="">TODOS</option>
                     </select>
                 </div>
 
                 <div>
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Tipo de Trabajo</label>
-                    <select id="filter-trabajo" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                    <select id="filter-trabajo" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
                         <option value="">TODOS</option>
                     </select>
                 </div>
 
                 <div class="sm:col-span-2 lg:col-span-1">
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Experiencia</label>
-                    <select id="filter-experiencia" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#0b1f3b]">
+                    <select id="filter-experiencia" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
                         <option value="">TODOS</option>
                     </select>
                 </div>
             </div>
         </div>
 
+        <!-- Tabla Principal -->
         <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
             <div class="overflow-x-auto">
                 <table class="w-full text-left border-collapse whitespace-nowrap">
@@ -137,28 +160,32 @@
                         </tr>
                     </thead>
                     <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-sm">
-                        </tbody>
+                        <!-- Renderizado controlado por JS -->
+                    </tbody>
                 </table>
             </div>
 
+            <!-- Cargando datos -->
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
-                <i class="fa-solid fa-spinner text-3xl text-[#0b1f3b] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Estableciendo conexión en tiempo real con Google Sheets...</p>
+                <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
+                <p class="text-sm text-slate-500 animate-pulse">Estableciendo canal seguro con la base de datos Frusan...</p>
             </div>
 
+            <!-- Sin resultados -->
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
                 <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-                <p class="text-sm">Ningún trabajador coincide con los criterios de los filtros seleccionados.</p>
+                <p class="text-sm">Ningún trabajador coincide con los filtros aplicados en este momento.</p>
             </div>
         </div>
 
     </main>
 
     <script>
-        // REEMPLAZA AQUÍ TU URL DE IMPLEMENTACIÓN GENERADA EN APPS SCRIPT
-        const API_URL = "https://script.google.com/macros/s/AKfycbxwtY480vRmKgfyuMjOhBO9ALmasTScoh0QG2FXbajVVpszZFsdV4eXYi3DwTi1faaY/exec"; 
+        // CAMBIA ESTA URL POR LA DE TU NUEVA IMPLEMENTACIÓN EN APPS SCRIPT
+        const API_URL = "https://script.google.com/macros/s/AKfycbxYVcF6oJEvntQ0iik73cSgqwhGFTxEMYwZO4YoUAPBPopQ04xY7nBdKehbpLCzmrm_/exec"; 
         
         let listaTrabajadores = [];
+        let datosFiltradosActuales = [];
 
         async function cargarDatos() {
             const statusIcon = document.getElementById('status-icon');
@@ -166,15 +193,17 @@
             const statusContainer = document.getElementById('connection-status');
 
             try {
-                const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Error en respuesta de red');
+                // El parámetro cache-busting evita que el navegador use una consulta vieja con error
+                const response = await fetch(`${API_URL}?_=${new Date().getTime()}`);
+                if (!response.ok) throw new Error('Error de comunicación de red');
                 
                 listaTrabajadores = await response.json();
+                datosFiltradosActuales = [...listaTrabajadores];
                 
-                // Actualización del Estatus de Conexión a Exitoso
+                // Conexión exitosa
                 statusContainer.className = "flex items-center gap-2 bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-medium text-emerald-400";
                 statusIcon.className = "fa-solid fa-circle text-emerald-400 text-[10px] animate-pulse";
-                statusText.innerText = "Conectado a BD_EMPADRONAMIENTO_2026";
+                statusText.innerText = "Conectado a Google Sheets";
 
                 document.getElementById('loading-state').classList.add('hidden');
                 
@@ -183,23 +212,21 @@
                 renderizarTabla(listaTrabajadores);
 
             } catch (error) {
-                console.error("Error de enlace:", error);
-                // Actualización del Estatus de Conexión a Fallido
+                console.error("Error detectado:", error);
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
                 statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
-                statusText.innerText = "Error de conexión";
+                statusText.innerText = "Sin conexión";
 
                 document.getElementById('loading-state').innerHTML = `
                     <div class="text-center text-red-500 p-4">
                         <i class="fa-solid fa-triangle-exclamation text-2xl mb-1"></i>
                         <p class="font-bold text-sm">Fallo en la comunicación de datos</p>
-                        <p class="text-xs text-slate-400">Verifica que hayas vuelto a implementar el script de Google como 'Cualquiera'.</p>
+                        <p class="text-xs text-slate-400">Asegúrate de haber guardado e implementado el script como 'Nueva Versión' y acceso para 'Cualquiera'.</p>
                     </div>
                 `;
             }
         }
 
-        // Llena los selectores de filtros de forma inteligente con valores únicos de la base de datos
         function configurarFiltrosDinamicos(datos) {
             const campos = {
                 'categorizacion': 'filter-categorizacion',
@@ -211,7 +238,6 @@
 
             Object.keys(campos).forEach(propiedad => {
                 const selectElement = document.getElementById(campos[propiedad]);
-                // Obtener valores únicos omitiendo vacíos o nulos
                 const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
                 
                 valoresUnicos.forEach(valor => {
@@ -235,14 +261,10 @@
                 Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Este trabajador no registra un número válido.' });
                 return;
             }
-
             let numero = trabajador.whatsapp.replace(/\D/g, '');
-            if(!numero.startsWith('51') && numero.length === 9) {
-                numero = '51' + numero;
-            }
+            if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
 
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. ¡Te esperamos para seguir creciendo juntos! Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
-            
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -267,7 +289,7 @@
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="py-3 px-4 text-center">
                             <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' 
-                                    class="bg-emerald-50 text-emerald-600 hover:bg-emerald-600 hover:text-white p-1.5 rounded-xl transition-colors shadow-sm" title="Enviar WhatsApp">
+                                    class="bg-emerald-50 text-emerald-600 hover:bg-[#b92519] hover:text-white p-1.5 rounded-xl transition-colors shadow-sm" title="Enviar WhatsApp">
                                 <i class="fa-brands fa-whatsapp text-base"></i>
                             </button>
                         </td>
@@ -296,7 +318,7 @@
             const fTrab = document.getElementById('filter-trabajo').value;
             const fExp = document.getElementById('filter-experiencia').value;
 
-            const datosFiltrados = listaTrabajadores.filter(t => {
+            datosFiltradosActuales = listaTrabajadores.filter(t => {
                 const cumpleBusqueda = queryBar === "" || t.nombre.toLowerCase().includes(queryBar) || t.dni.includes(queryBar);
                 const cumpleCat = fCat === "" || t.categorizacion === fCat;
                 const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
@@ -307,7 +329,38 @@
                 return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab && cumpleExp;
             });
 
-            renderizarTabla(datosFiltrados);
+            renderizarTabla(datosFiltradosActuales);
+        }
+
+        // Función inteligente para exportar los datos filtrados en tiempo real a .xlsx
+        function exportarExcel() {
+            if (datosFiltradosActuales.length === 0) {
+                Swal.fire({ icon: 'info', title: 'Sin datos', text: 'No hay filas en la tabla actual para exportar.' });
+                return;
+            }
+
+            // Mapear cabeceras legibles para la gerencia
+            const datosAcondicionados = datosFiltradosActuales.map(t => ({
+                "Apellidos y Nombres": t.nombre,
+                "DNI": t.dni,
+                "Sexo": t.sexo,
+                "Celular": t.celular,
+                "WhatsApp": t.whatsapp,
+                "Categorización": t.categorizacion,
+                "Evento Registro": t.evento_registro,
+                "Modalidad": t.modalidad,
+                "Tipo de Trabajo": t.tipo_trabajo,
+                "Zona": t.zona,
+                "Experiencia": t.experiencia,
+                "Días Laborados": parseInt(t.total_dias_laborados) || 0
+            }));
+
+            const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
+            const libroTrabajo = XLSX.utils.book_new();
+            XLSX.utils.book_append_sheet(libroTrabajo, hojaTrabajo, "Personal Filtrado");
+
+            // Descarga automática con nombre de campaña
+            XLSX.writeFile(libroTrabajo, `Reporte_Personal_Frusan_Campaña_2026.xlsx`);
         }
 
         window.addEventListener('DOMContentLoaded', cargarDatos);
