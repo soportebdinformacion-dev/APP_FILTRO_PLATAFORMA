@@ -120,8 +120,8 @@
     </footer>
 
     <script>
-        // Pega aquí la NUEVA URL que copiaste al hacer la nueva implementación en Google Sheets
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzrq_2wCDdZAva-PQIoPEaoAZAe96t5eKZ_qu9EaVXm2FLEtvzOWJ2WhJ7c1xsuWwbs/exec";
+        // ⚠️ PEGA AQUÍ TU NUEVA URL DE APPS SCRIPT QUE COPIASTE EN LA NUEVA IMPLEMENTACIÓN
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyA79dSnFCqwvFBzPKgh7Dus0vxkDs1LBxVOpWVBFOdC7ziRmF6NA3YiAFwzZ82LiDS/exec";
 
         let listaTrabajadores = [];
 
@@ -140,7 +140,7 @@
             }
         }
 
-        // Capturador global de la respuesta JSONP
+        // FUNCIÓN GLOBAL CAPTURADORA DE DATOS DESDE LOCAL
         window.recibirDatosSincronizados = function(datos) {
             listaTrabajadores = datos;
             actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
@@ -151,12 +151,11 @@
         function cargarDatos() {
             actualizarEstatusConexion('cargando', 'Conectando...');
             try {
-                // Eliminamos cualquier inyección previa para evitar duplicados
-                const previo = document.getElementById('script-jsonp-conn');
+                const previo = document.getElementById('script-jsonp');
                 if (previo) previo.remove();
 
                 const script = document.createElement('script');
-                script.id = 'script-jsonp-conn';
+                script.id = 'script-jsonp';
                 script.src = `${WEB_APP_URL}?callback=recibirDatosSincronizados&_=${new Date().getTime()}`;
                 script.onerror = function() {
                     actualizarEstatusConexion('error', 'Error de Conexión');
