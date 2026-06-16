@@ -16,7 +16,7 @@
 <body class="text-slate-800">
 
     <header class="brand-gradient text-white shadow-md">
-        <div class="max-w-7xl mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
+        <div class="max-w-[95%] mx-auto px-4 py-6 flex flex-col md:flex-row items-center justify-between gap-4">
             <div class="flex flex-col sm:flex-row items-center gap-4 text-center sm:text-left">
                 <div class="bg-white p-2 rounded-xl shadow-md inline-block">
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="h-14 w-auto object-contain" onerror="this.src='https://placehold.co/150x60?text=FRUSAN'"/>
@@ -43,7 +43,7 @@
         </div>
     </header>
 
-    <main class="max-w-7xl mx-auto px-4 py-8">
+    <main class="max-w-[95%] mx-auto px-4 py-8">
         
         <div class="bg-white rounded-2xl p-6 shadow-sm mb-8 border border-slate-200">
             <h3 class="text-sm font-semibold text-slate-500 uppercase tracking-wider mb-3"><i class="fa-solid fa-filter mr-1"></i> Filtros de Búsqueda</h3>
@@ -76,39 +76,38 @@
             </div>
         </div>
 
-        <section class="mb-10">
-            <div class="flex items-center gap-2 mb-4">
-                <i class="fa-solid fa-address-card text-blue-700 text-xl"></i>
-                <h2 class="text-xl font-bold text-slate-800">Registros Individuales</h2>
-            </div>
-            <div id="grid-tarjetas" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                <div class="col-span-full py-12 text-center text-slate-500">
-                    <i class="fa-solid fa-circle-notch animate-spin text-3xl text-blue-600 mb-2"></i>
-                    <p>Sincronizando con la base de datos de Google Sheets...</p>
-                </div>
-            </div>
-        </section>
-
         <section>
             <div class="flex items-center gap-2 mb-4">
                 <i class="fa-solid fa-table-list text-blue-700 text-xl"></i>
-                <h2 class="text-xl font-bold text-slate-800">Tabla de Control General</h2>
+                <h2 class="text-xl font-bold text-slate-800">Tabla de Control General (11 Columnas de Campaña)</h2>
             </div>
             <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
                 <div class="overflow-x-auto">
-                    <table class="w-full text-left border-collapse">
+                    <table class="w-full text-left border-collapse min-w-[1200px]">
                         <thead>
-                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-semibold uppercase tracking-wider text-slate-600">
-                                <th class="px-6 py-4">Trabajador</th>
-                                <th class="px-6 py-4">Identificación</th>
-                                <th class="px-6 py-4">Área / Modalidad</th>
-                                <th class="px-6 py-4">Categorización</th>
-                                <th class="px-6 py-4">Evento Registro</th>
-                                <th class="px-6 py-4 text-center">Acciones</th>
+                            <tr class="bg-slate-50 border-b border-slate-200 text-xs font-bold uppercase tracking-wider text-slate-600">
+                                <th class="px-4 py-4">Apellidos y Nombres</th>
+                                <th class="px-4 py-4 text-center">Sexo</th>
+                                <th class="px-4 py-4">Celular</th>
+                                <th class="px-4 py-4">WhatsApp</th>
+                                <th class="px-4 py-4">Tipo Trabajo</th>
+                                <th class="px-4 py-4">Modalidad</th>
+                                <th class="px-4 py-4">Experiencia</th>
+                                <th class="px-4 py-4">Zona</th>
+                                <th class="px-4 py-4">Categorización</th>
+                                <th class="px-4 py-4 text-center">Total Días Laborados</th>
+                                <th class="px-4 py-4">Evento Registro</th>
+                                <th class="px-4 py-4 text-center">Acciones</th>
                             </tr>
                         </thead>
-                        <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-sm">
-                            </tbody>
+                        <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-xs sm:text-sm">
+                            <tr>
+                                <td colspan="12" class="text-center py-12 text-slate-500">
+                                    <i class="fa-solid fa-circle-notch animate-spin text-3xl text-blue-600 mb-2 block mx-auto"></i>
+                                    Sincronizando información remota desde Google Sheets...
+                                </td>
+                            </tr>
+                        </tbody>
                     </table>
                 </div>
             </div>
@@ -117,172 +116,11 @@
     </main>
 
     <footer class="mt-20 border-t border-slate-200 bg-white py-6 text-center text-xs text-slate-400">
-        <p>&copy; 2026 Portal de Gestión Agrícola - Integrado con Google Sheets.</p>
+        <p>&copy; 2026 Portal de Gestión Agrícola - Control Consolidador Frusan.</p>
     </footer>
 
     <script>
-        // ⚠️ REEMPLAZA ESTA URL CON TU LINK NUEVO DE EJECUCIÓN TERMINADO EN /exec
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwBy5j0SPqMBnrw8dBs_4ZgxuCVGXmhVkuM4xlbiD6AJ1XYMYO2nsBaohCdWrYP7ucZ/exec";
-
-        let listaTrabajadores = [];
-
-        function actualizarEstatusConexion(estado, mensaje) {
-            const container = document.getElementById('connection-status');
-            if (!container) return;
-            if (estado === 'cargando') {
-                container.className = "flex items-center gap-2 bg-amber-500/20 text-amber-200 px-3.5 py-2 rounded-xl text-xs font-semibold border border-amber-500/30 backdrop-blur-sm";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span><span>${mensaje}</span>`;
-            } else if (estado === 'exito') {
-                container.className = "flex items-center gap-2 bg-emerald-500/20 text-emerald-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-emerald-500/30 backdrop-blur-sm";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span><span>${mensaje}</span>`;
-            } else if (estado === 'error') {
-                container.className = "flex items-center gap-2 bg-red-500/20 text-red-300 px-3.5 py-2 rounded-xl text-xs font-semibold border border-red-500/30 backdrop-blur-sm";
-                container.innerHTML = `<span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span><span>${mensaje}</span>`;
-            }
-        }
-
-        // Función global encargada de recibir la respuesta directa de Google sin pasar por CORS
-        window.recibirDatosSheets = function(datos) {
-            listaTrabajadores = datos;
-            actualizarEstatusConexion('exito', 'Base de Datos Sincronizada');
-            configurarFiltroEventos(listaTrabajadores);
-            filtrarPersonal();
-        };
-
-        function cargarDatos() {
-            actualizarEstatusConexion('cargando', 'Conectando...');
-            
-            try {
-                // Crear un script dinámico para evadir por completo el bloqueo del explorador local
-                const script = document.createElement('script');
-                script.src = `${WEB_APP_URL}?callback=recibirDatosSheets`;
-                script.onerror = function() {
-                    actualizarEstatusConexion('error', 'Error de Conexión');
-                    Swal.fire({
-                        icon: 'error',
-                        title: 'Error de Conexión',
-                        text: 'Verifica la URL asignada y asegúrate de implementar una "Nueva Implementación" con acceso para "Cualquiera" (Anyone).',
-                        confirmButtonColor: '#1e3a8a'
-                    });
-                };
-                document.body.appendChild(script);
-            } catch (error) {
-                console.error(error);
-                actualizarEstatusConexion('error', 'Error de Conexión');
-            }
-        }
-
-        function configurarFiltroEventos(datos) {
-            const selectEvento = document.getElementById('filter-evento');
-            if(!selectEvento) return;
-            selectEvento.innerHTML = '<option value="">Todos los Eventos / Fechas</option>';
-            const eventosUnicos = [...new Set(datos.map(t => t.evento_registro))].filter(e => e && e !== "N/A");
-            eventosUnicos.sort().forEach(evento => {
-                const option = document.createElement('option');
-                option.value = evento;
-                option.innerText = evento;
-                selectEvento.appendChild(option);
-            });
-        }
-
-        function enviarInvitacionWhatsApp(nombre, celular, experiencia) {
-            if (!celular || celular.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Sin Celular', text: 'El trabajador no tiene un número registrado.', confirmButtonColor: '#1e3a8a' });
-                return;
-            }
-            const mensaje = `¡Hola *${nombre}*! ✨ Te escribimos para hacerte la invitación formal a formar parte de nuestro equipo de trabajo para el inicio de nuestra *Campaña de Cosecha de Arándanos 2026* 🍇. Sabemos de tu gran desempeño en *${experiencia}* y queremos contar contigo. Confírmanos tu respuesta por este medio. ¡Te esperamos!`;
-            window.open(`https://api.whatsapp.com/send?phone=51${celular.replace(/[^0-9]/g, '')}&text=${encodeURIComponent(mensaje)}`, '_blank');
-        }
-
-        function renderizarComponentes(datos) {
-            const gridTarjetas = document.getElementById('grid-tarjetas');
-            const tablaCuerpo = document.getElementById('tabla-cuerpo');
-            if(!gridTarjetas || !tablaCuerpo) return;
-            
-            gridTarjetas.innerHTML = "";
-            tablaCuerpo.innerHTML = "";
-            document.getElementById('txt-total').innerText = datos.length;
-
-            if (datos.length === 0) {
-                gridTarjetas.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400"><i class="fa-solid fa-box-open text-2xl mb-2 block"></i>No hay registros para estos filtros.</div>`;
-                tablaCuerpo.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Sin coincidencias.</td></tr>`;
-                return;
-            }
-
-            datos.forEach(t => {
-                const puestoColor = String(t.tipo_trabajo).toUpperCase().includes("PACKING") ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800";
-                let catColor = "bg-slate-100 text-slate-700";
-                if (String(t.categorizacion).toUpperCase().includes("EXCELENTE")) catColor = "bg-blue-100 text-blue-800 font-bold";
-                else if (String(t.categorizacion).toUpperCase().includes("BUENO")) catColor = "bg-indigo-100 text-indigo-800";
-                else if (String(t.categorizacion).toUpperCase().includes("NUEVO")) catColor = "bg-purple-100 text-purple-800";
-
-                const htmlTarjeta = `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
-                        <div class="p-5">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${puestoColor}">${t.tipo_trabajo}</span>
-                                <span class="px-2.5 py-1 text-xs font-medium rounded-full ${catColor}">${t.categorizacion}</span>
-                            </div>
-                            <h3 class="text-base font-bold text-slate-800 mb-1 uppercase">${t.nombre}</h3>
-                            <div class="space-y-1.5 text-xs text-slate-600 mt-3 border-t border-slate-100 pt-3">
-                                <p><i class="fa-solid fa-id-card w-5 text-slate-400"></i><b>DNI:</b> ${t.dni}</p>
-                                <p><i class="fa-solid fa-briefcase w-5 text-slate-400"></i><b>Experiencia:</b> ${t.experiencia}</p>
-                                <p><i class="fa-solid fa-calendar-day w-5 text-slate-400"></i><b>Evento Reg:</b> <span class="text-slate-500">${t.evento_registro}</span></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 px-5 py-3 border-t border-slate-100">
-                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.celular}', '${t.experiencia}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Invitación
-                            </button>
-                        </div>
-                    </div>
-                `;
-                gridTarjetas.insertAdjacentHTML('beforeend', htmlTarjeta);
-
-                const htmlFila = `
-                    <tr class="hover:bg-slate-50/80 transition-all">
-                        <td class="px-6 py-4 font-semibold text-slate-800 uppercase">${t.nombre}</td>
-                        <td class="px-6 py-4 font-mono text-slate-500 text-xs">DNI ${t.dni}</td>
-                        <td class="px-6 py-4">
-                            <span class="px-2 py-0.5 text-xs font-semibold rounded ${puestoColor}">${t.tipo_trabajo}</span>
-                            <span class="block text-xs text-slate-400 mt-0.5">${t.modalidad}</span>
-                        </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full ${catColor}">${t.categorizacion}</span>
-                        </td>
-                        <td class="px-6 py-4 text-xs text-slate-500 font-medium">
-                            <i class="fa-solid fa-clock-history mr-1 text-slate-400"></i>${t.evento_registro}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.celular}', '${t.experiencia}')" class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 font-medium text-xs px-3 py-1.5 rounded-lg transition-all">
-                                <i class="fa-brands fa-whatsapp"></i> Invitar
-                            </button>
-                        </td>
-                    </tr>
-                `;
-                tablaCuerpo.insertAdjacentHTML('beforeend', htmlFila);
-            });
-        }
-
-        function filtrarPersonal() {
-            const textQuery = document.getElementById('search-bar').value.toLowerCase().trim();
-            const puestoSel = document.getElementById('filter-tipo').value;
-            const catSel = document.getElementById('filter-categoria').value;
-            const eventoSel = document.getElementById('filter-evento').value;
-
-            const datosFiltrados = listaTrabajadores.filter(t => {
-                const cumpleTexto = String(t.nombre).toLowerCase().includes(textQuery) || String(t.dni).includes(textQuery);
-                const cumplePuesto = puestoSel === "" || String(t.tipo_trabajo).toUpperCase().includes(puestoSel);
-                const cumpleCat = catSel === "" || String(t.categorizacion).toUpperCase().includes(catSel);
-                const cumpleEvento = eventoSel === "" || String(t.evento_registro) === eventoSel;
-                return cumpleTexto && cumplePuesto && cumpleCat && cumpleEvento;
-            });
-            renderizarComponentes(datosFiltrados);
-        }
-
-        window.addEventListener('DOMContentLoaded', cargarDatos);
-    </script><script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby_bgMXIB4iIeR0WoPRR8ai-iRN0l6Tdvd9iZA-eJuFLPRCWGj8whPIU3crL5ACWy0O/exec";
+        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbx1mAC8ABBZ4xyBkpgArQdQAW-pse-HdsiiPsWlFMptcaPA_Tcf-SZtUeAmvOWacbDH/exec";
 
         let listaTrabajadores = [];
 
@@ -327,6 +165,7 @@
             const selectEvento = document.getElementById('filter-evento');
             if(!selectEvento) return;
             selectEvento.innerHTML = '<option value="">Todos los Eventos / Fechas</option>';
+            
             const eventosUnicos = [...new Set(datos.map(t => t.evento_registro))].filter(e => e && e !== "N/A");
             eventosUnicos.sort().forEach(evento => {
                 const option = document.createElement('option');
@@ -337,7 +176,6 @@
         }
 
         function enviarInvitacionWhatsApp(nombre, celular, whatsapp, experiencia) {
-            // Prioriza el número de WhatsApp, si no usa celular común
             const numeroDestino = (whatsapp && whatsapp.trim() !== "") ? whatsapp : celular;
             
             if (!numeroDestino || numeroDestino.trim() === "") {
@@ -349,79 +187,49 @@
         }
 
         function renderizarComponentes(datos) {
-            const gridTarjetas = document.getElementById('grid-tarjetas');
             const tablaCuerpo = document.getElementById('tabla-cuerpo');
-            if(!gridTarjetas || !tablaCuerpo) return;
+            if(!tablaCuerpo) return;
             
-            gridTarjetas.innerHTML = "";
             tablaCuerpo.innerHTML = "";
             document.getElementById('txt-total').innerText = datos.length;
 
             if (datos.length === 0) {
-                gridTarjetas.innerHTML = `<div class="col-span-full text-center py-8 text-slate-400"><i class="fa-solid fa-box-open text-2xl mb-2 block"></i>No hay registros para estos filtros.</div>`;
-                tablaCuerpo.innerHTML = `<tr><td colspan="6" class="text-center py-8 text-slate-400">Sin coincidencias.</td></tr>`;
+                tablaCuerpo.innerHTML = `<tr><td colspan="12" class="text-center py-8 text-slate-400">Ningún trabajador coincide con los filtros establecidos.</td></tr>`;
                 return;
             }
 
             datos.forEach(t => {
+                // Estilos visuales dinámicos de tu interfaz original
                 const puestoColor = String(t.tipo_trabajo).toUpperCase().includes("PACKING") ? "bg-amber-100 text-amber-800" : "bg-emerald-100 text-emerald-800";
+                
                 let catColor = "bg-slate-100 text-slate-700";
                 if (String(t.categorizacion).toUpperCase().includes("EXCELENTE")) catColor = "bg-blue-100 text-blue-800 font-bold";
                 else if (String(t.categorizacion).toUpperCase().includes("BUENO")) catColor = "bg-indigo-100 text-indigo-800";
+                else if (String(t.categorizacion).toUpperCase().includes("REGULAR")) catColor = "bg-orange-100 text-orange-800";
                 else if (String(t.categorizacion).toUpperCase().includes("NUEVO")) catColor = "bg-purple-100 text-purple-800";
 
-                // --- TARJETAS CORREGIDAS CON NUEVAS COLUMNAS (MÓVIL) ---
-                const htmlTarjeta = `
-                    <div class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col justify-between hover:shadow-md transition-all">
-                        <div class="p-5">
-                            <div class="flex justify-between items-start mb-3">
-                                <span class="px-2.5 py-1 text-xs font-semibold rounded-full ${puestoColor}">${t.tipo_trabajo}</span>
-                                <span class="px-2.5 py-1 text-xs font-medium rounded-full ${catColor}">${t.categorizacion}</span>
-                            </div>
-                            <h3 class="text-base font-bold text-slate-800 mb-1 uppercase">${t.nombre}</h3>
-                            <div class="space-y-1.5 text-xs text-slate-600 mt-3 border-t border-slate-100 pt-3">
-                                <p><i class="fa-solid fa-id-card w-5 text-slate-400"></i><b>DNI:</b> ${t.dni}</p>
-                                <p><i class="fa-solid fa-venus-mars w-5 text-slate-400"></i><b>Sexo:</b> ${t.sexo}</p>
-                                <p><i class="fa-solid fa-phone w-5 text-slate-400"></i><b>Celular / WA:</b> ${t.celular} / ${t.whatsapp}</p>
-                                <p><i class="fa-solid fa-map-pin w-5 text-slate-400"></i><b>Zona:</b> ${t.zona}</p>
-                                <p><i class="fa-solid fa-briefcase w-5 text-slate-400"></i><b>Experiencia:</b> ${t.experiencia}</p>
-                                <p><i class="fa-solid fa-calendar-check w-5 text-slate-400"></i><b>Días Lab:</b> ${t.total_dias_laborados} días</p>
-                                <p><i class="fa-solid fa-clock w-5 text-slate-400"></i><b>Evento:</b> <span class="text-slate-500">${t.evento_registro}</span></p>
-                            </div>
-                        </div>
-                        <div class="bg-slate-50 px-5 py-3 border-t border-slate-100">
-                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.celular}', '${t.whatsapp}', '${t.experiencia}')" class="w-full bg-emerald-600 hover:bg-emerald-700 text-white text-xs font-semibold py-2.5 px-4 rounded-xl flex items-center justify-center gap-2 transition-colors">
-                                <i class="fa-brands fa-whatsapp text-lg"></i> Enviar Invitación
-                            </button>
-                        </div>
-                    </div>
-                `;
-                gridTarjetas.insertAdjacentHTML('beforeend', htmlTarjeta);
-
-                // --- TABLA GENERAL CORREGIDA CON NUEVAS COLUMNAS (PC) ---
                 const htmlFila = `
-                    <tr class="hover:bg-slate-50/80 transition-all">
-                        <td class="px-6 py-4 font-semibold text-slate-800 uppercase">
+                    <tr class="hover:bg-slate-50/80 transition-all font-medium text-slate-700">
+                        <td class="px-4 py-3.5 font-bold text-slate-800 uppercase">
                             ${t.nombre}
-                            <span class="block text-xs text-slate-400 font-normal mt-0.5"><i class="fa-solid fa-map-marker-alt mr-1"></i>${t.zona} | ${t.sexo}</span>
+                            <span class="block font-mono text-[11px] text-slate-400 font-normal mt-0.5">DNI: ${t.dni}</span>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="block font-mono text-slate-600 text-xs">DNI: ${t.dni}</span>
-                            <span class="block text-xs text-slate-500 mt-0.5"><i class="fa-solid fa-phone text-[10px] mr-1"></i>${t.celular} / W: ${t.whatsapp}</span>
-                        </td>
-                        <td class="px-6 py-4">
+                        <td class="px-4 py-3.5 text-center text-slate-600 uppercase text-xs">${t.sexo}</td>
+                        <td class="px-4 py-3.5 font-mono text-xs text-slate-600">${t.celular || '-'}</td>
+                        <td class="px-4 py-3.5 font-mono text-xs text-emerald-600">${t.whatsapp || '-'}</td>
+                        <td class="px-4 py-3.5">
                             <span class="px-2 py-0.5 text-xs font-semibold rounded ${puestoColor}">${t.tipo_trabajo}</span>
-                            <span class="block text-xs text-slate-400 mt-0.5">${t.modalidad}</span>
                         </td>
-                        <td class="px-6 py-4">
-                            <span class="px-2.5 py-1 text-xs font-medium rounded-full ${catColor}">${t.categorizacion}</span>
-                            <span class="block text-xs text-blue-600 font-medium mt-1"><i class="fa-solid fa-calculator mr-1"></i>${t.total_dias_laborados} d. laborados</span>
+                        <td class="px-4 py-3.5 text-xs text-slate-500 uppercase">${t.modalidad}</td>
+                        <td class="px-4 py-3.5 text-xs text-slate-600 max-w-[150px] truncate" title="${t.experiencia}">${t.experiencia}</td>
+                        <td class="px-4 py-3.5 text-xs text-slate-500 uppercase">${t.zona}</td>
+                        <td class="px-4 py-3.5">
+                            <span class="px-2.5 py-0.5 text-xs font-medium rounded-full ${catColor}">${t.categorizacion}</span>
                         </td>
-                        <td class="px-6 py-4 text-xs text-slate-500 font-medium">
-                            <i class="fa-solid fa-clock-history mr-1 text-slate-400"></i>${t.evento_registro}
-                        </td>
-                        <td class="px-6 py-4 text-center">
-                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.celular}', '${t.whatsapp}', '${t.experiencia}')" class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 font-medium text-xs px-3 py-1.5 rounded-lg transition-all">
+                        <td class="px-4 py-3.5 text-center font-bold text-blue-700">${t.total_dias_laborados} d.</td>
+                        <td class="px-4 py-3.5 text-xs text-slate-500">${t.evento_registro}</td>
+                        <td class="px-4 py-3.5 text-center">
+                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.celular}', '${t.whatsapp}', '${t.experiencia}')" class="inline-flex items-center gap-1.5 bg-emerald-50 text-emerald-700 hover:bg-emerald-600 hover:text-white border border-emerald-200 font-semibold text-xs px-2.5 py-1.5 rounded-lg transition-all shadow-sm">
                                 <i class="fa-brands fa-whatsapp"></i> Invitar
                             </button>
                         </td>
@@ -433,12 +241,11 @@
 
         function filtrarPersonal() {
             const textQuery = document.getElementById('search-bar').value.toLowerCase().trim();
-            const puestoSel = document.getElementById('filter-tipo').value.toUpperCase();
-            const catSel = document.getElementById('filter-categoria').value.toUpperCase();
+            const puestoSel = document.getElementById('filter-tipo').value.toUpperCase().trim();
+            const catSel = document.getElementById('filter-categoria').value.toUpperCase().trim();
             const eventoSel = document.getElementById('filter-evento').value;
 
             const datosFiltrados = listaTrabajadores.filter(t => {
-                // Validación segura para evitar caídas si algún registro viene incompleto
                 const nombreVal = t.nombre ? String(t.nombre).toLowerCase() : "";
                 const dniVal = t.dni ? String(t.dni).toLowerCase() : "";
                 const puestoVal = t.tipo_trabajo ? String(t.tipo_trabajo).toUpperCase() : "";
