@@ -266,8 +266,8 @@
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
             // Los contadores ahora buscan con flexiblidad por palabras clave (ANTIGUO y NUEVO)
-            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
-            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
+            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL ANTIGUO")).length;
+            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL NUEVO")).length;
             document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
