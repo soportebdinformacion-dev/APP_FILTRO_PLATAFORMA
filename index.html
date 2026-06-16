@@ -24,14 +24,14 @@
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Agrícola Haurmey, fundo Frusan</h1>
+                    <h1 class="text-2xl font-bold tracking-tight">FRUSAN</h1>
                     <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo conexión...</span>
+                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
             </div>
         </div>
     </header>
@@ -75,7 +75,7 @@
                     <i class="fa-solid fa-sliders text-[#b92519]"></i> Filtros de Búsqueda Avanzada
                 </h3>
                 <button onclick="exportarExcel()" class="inline-flex items-center justify-center gap-2 bg-[#b92519] hover:bg-[#961c12] text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition-all duration-200">
-                    <i class="fa-solid fa-file-excel text-sm"></i> Exportar a excel
+                    <i class="fa-solid fa-file-excel text-sm"></i> Exportar a *.xlsx
                 </button>
             </div>
             
@@ -144,7 +144,7 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base datos...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa con Google Sheets Frusan...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
@@ -155,18 +155,13 @@
     </main>
 
     <script>
-        // ID de tu documento original de Google Sheets obtenido de tus capturas
         const SHEET_ID = "1eGrz1am48_579m7mJ24Yqq8ldbwkMlzgH8cqLq81AXs";
-        // Nombre exacto de la pestaña donde residen los datos
-        const SHEET_NAME = "https://script.google.com/macros/s/AKfycbwvr8YVwqe0FamCdEaCgId2QJRAf867GvjCxZT54_MLz4HjVbKQFW5Rp9iPfBiN-9Gr/exec";
-        
-        // Generación automática del enlace directo CSV de Google Sheets para eludir intermediarios
+        const SHEET_NAME = "DATA_GOOGLE SHEETS";
         const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
 
-        // Función nativa veloz para parsear el formato estándar CSV de Google sin librerías externas pesadas
         function parsearCSV(textoCSV) {
             const lineas = textoCSV.split(/\r?\n/);
             const resultado = [];
@@ -174,15 +169,23 @@
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 
-                // Expresión regular para separar por comas respetando los textos con comillas internas
+                // Regex avanzado para capturar columnas separadas por comas respetando comillas
                 const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                const limpiar = (valor) => valor ? valor.replace(/^"| font-mono "$/g, '').trim() : "";
                 
-                // Mapeo correlativo exacto según el orden de tus columnas (A hasta L)
+                // Función de limpieza profunda para eliminar comillas molestas de los extremos
+                const limpiar = (valor) => {
+                    if (!valor) return "";
+                    let v = valor.trim();
+                    if (v.startsWith('"') && v.endsWith('"')) {
+                        v = v.substring(1, v.length - 1);
+                    }
+                    return v.trim();
+                };
+                
                 const nombre = limpiar(celdas[0]);
                 const dni = limpiar(celdas[8]);
                 
-                if (!nombre && !dni) continue; // Evita el procesamiento de filas huérfanas
+                if (!nombre && !dni) continue;
 
                 resultado.push({
                     nombre: nombre.toUpperCase(),
@@ -209,7 +212,7 @@
 
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Fallo en la comunicación con el servidor de archivos.');
+                if (!response.ok) throw new Error('Fallo en la comunicación');
                 
                 const textoCSV = await response.text();
                 listaTrabajadores = parsearCSV(textoCSV);
@@ -228,16 +231,6 @@
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
                 statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
                 statusText.innerText = "Error de Acceso Directo";
-
-                document.getElementById('loading-state').innerHTML = `
-                    <div class="text-center text-red-500 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
-                        <i class="fa-solid fa-file-excel text-3xl mb-2"></i>
-                        <p class="font-bold text-sm">Error de lectura de archivo</p>
-                        <p class="text-xs text-slate-600 mt-2 text-left leading-relaxed">
-                            Asegúrate de haber completado el <b>Paso 1</b>: Abre tu Google Sheets original, haz clic en <b>Compartir</b> en la esquina superior derecha y cambia el acceso general a <b>'Cualquier persona con el enlace'</b> en modo Lector. Esto permitirá que este panel lea los datos al instante.
-                        </p>
-                    </div>
-                `;
             }
         }
 
@@ -251,6 +244,7 @@
             };
             Object.keys(campos).forEach(propiedad => {
                 const selectElement = document.getElementById(campos[propiedad]);
+                selectElement.innerHTML = '<option value="">TODOS</option>'; // Limpiar previos
                 const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
                 valoresUnicos.forEach(valor => {
                     const opt = document.createElement('option');
@@ -262,19 +256,20 @@
 
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
-            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("ANTIGUO")).length;
-            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("NUEVO")).length;
+            // Corregido para buscar en mayúsculas de manera exacta según la base de datos
+            document.getElementById('stat-antiguo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL ANTIGUO")).length;
+            document.getElementById('stat-nuevo').innerText = datos.filter(t => t.categorizacion.includes("PERSONAL NUEVO")).length;
             document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
         function enviarInvitacionWhatsApp(trabajador) {
             if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
-                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número de contacto no registrado en el documento.' });
+                Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número de contacto no registrado.' });
                 return;
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agricola Huarmey, fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
