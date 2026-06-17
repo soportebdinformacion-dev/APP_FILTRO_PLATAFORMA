@@ -31,7 +31,7 @@
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
+                <span id="status-text" class="text-red-100">Estableciendo conexión con la base de datos...</span>
             </div>
         </div>
     </header>
@@ -41,7 +41,7 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Encontrados</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Empadronados</p>
                     <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
                 <div class="bg-red-50 text-[#b92519] p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
@@ -62,7 +62,7 @@
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Campamento</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Campamento</p>
                     <h3 id="stat-campamento" class="text-2xl font-bold text-indigo-600 mt-1">0</h3>
                 </div>
                 <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl"><i class="fa-solid fa-campground text-xl"></i></div>
@@ -75,7 +75,7 @@
                     <i class="fa-solid fa-sliders text-[#b92519]"></i> Filtros de Búsqueda Avanzada
                 </h3>
                 <button onclick="exportarExcel()" class="inline-flex items-center justify-center gap-2 bg-[#b92519] hover:bg-[#961c12] text-white text-xs font-semibold px-4 py-2 rounded-xl shadow-sm transition-all duration-200">
-                    <i class="fa-solid fa-file-excel text-sm"></i> Exportar a *.xlsx
+                    <i class="fa-solid fa-file-excel text-sm"></i> Exportar a excel
                 </button>
             </div>
             
@@ -144,7 +144,7 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa con Google Sheets Frusan...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando con la base de datos...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
@@ -228,7 +228,7 @@
                 
                 statusContainer.className = "flex items-center gap-2 bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-medium text-emerald-400";
                 statusIcon.className = "fa-solid fa-circle text-emerald-400 text-[10px] animate-pulse";
-                statusText.innerText = "Conectado a Google Sheets Directo";
+                statusText.innerText = "Conectado a la base en línea";
                 document.getElementById('loading-state').classList.add('hidden');
                 
                 configurarFiltrosDinamicos(listaTrabajadores);
@@ -286,7 +286,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agrícola Huarmey | fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
