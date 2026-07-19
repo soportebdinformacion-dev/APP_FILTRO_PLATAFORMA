@@ -165,7 +165,6 @@
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 
-                // Procesamiento robusto de comas y comillas en formato CSV nativo de Sheets
                 const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
                 const limpiar = (valor) => valor ? valor.replace(/^"| font-mono "$/g, '').trim() : "";
                 
@@ -251,16 +250,15 @@
         function obtenerEstiloCategorizacion(cat) {
             const categoria = cat.trim().toUpperCase();
             if (categoria.includes("EXCELENTE")) {
-                return "text-emerald-600 border-emerald-200 bg-emerald-50";
+                return "text-emerald-700 border-emerald-200 bg-emerald-50/80";
             } else if (categoria.includes("BUENO")) {
-                return "text-blue-600 border-blue-200 bg-blue-50";
+                return "text-blue-700 border-blue-200 bg-blue-50/80";
             } else if (categoria.includes("REGULAR")) {
-                return "text-orange-500 border-orange-200 bg-orange-50";
+                return "text-orange-600 border-orange-200 bg-orange-50/80";
             } else if (categoria.includes("MALO")) {
-                return "text-red-600 border-red-200 bg-red-50";
+                return "text-red-700 border-red-200 bg-red-50/80";
             } else {
-                // SIN CATEGORIA / Otros (Color Negro)
-                return "text-black border-slate-300 bg-slate-100";
+                return "text-slate-700 border-slate-300 bg-slate-100/80";
             }
         }
 
@@ -294,24 +292,85 @@
             noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                const claseColor = obtenerEstiloCategorizacion(t.categorizacion);
+                const claseColorCat = obtenerEstiloCategorizacion(t.categorizacion);
+                
+                // Estilos para Sexo
+                const claseSexo = t.sexo.startsWith('M') ? 'bg-blue-50 text-blue-700 border-blue-200' : 
+                                  t.sexo.startsWith('F') ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-50 text-slate-600 border-slate-200';
+                
+                // Estilos para Tipo Trabajo
+                const claseTrabajo = t.tipo_trabajo.includes('CAMPO') ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-cyan-50 text-cyan-800 border-cyan-200';
+                
+                // Estilos para Modalidad
+                const claseModalidad = t.modalidad.includes('CAMPAMENTO') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-teal-50 text-teal-700 border-teal-200';
+
+                // Estilos para Experiencia
+                const claseExperiencia = t.experiencia.includes('NINGUNO') || t.experiencia.includes('SIN') ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200';
+
                 const filaHTML = `
-                    <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
+                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
+                        <!-- WHATSAPP -->
                         <td class="py-3 px-4 text-center">
-                            <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' class="bg-red-50 text-[#b92519] hover:bg-[#b92519] hover:text-white p-1.5 rounded-xl transition-colors shadow-sm">
-                                <i class="fa-brands fa-whatsapp text-base"></i>
+                            <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' class="bg-red-50 text-[#b92519] hover:bg-[#b92519] hover:text-white p-2 rounded-xl transition-all duration-200 shadow-sm transform hover:scale-105">
+                                <i class="fa-brands fa-whatsapp text-lg"></i>
                             </button>
                         </td>
-                        <td class="py-3 px-4 font-semibold text-slate-800 uppercase tracking-tight">${t.nombre}</td>
-                        <td class="py-3 px-4 text-xs text-slate-600">${t.sexo}</td>
-                        <td class="py-3 px-4 text-xs text-slate-600 font-mono">${t.celular}</td>
-                        <td class="py-3 px-4 text-xs font-bold text-slate-500">${t.tipo_trabajo}</td>
-                        <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
-                        <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate">${t.experiencia}</td>
-                        <td class="py-3 px-4 text-slate-600 uppercase text-xs">${t.zona}</td>
-                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
-                        <td class="py-3 px-4"><span class="text-[11px] font-bold px-2 py-0.5 rounded-md border ${claseColor}">${t.categorizacion}</span></td>
-                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro}</td>
+                        <!-- APELLIDOS Y NOMBRES -->
+                        <td class="py-3 px-4 font-bold text-slate-900 tracking-tight text-xs uppercase max-w-xs truncate">${t.nombre}</td>
+                        <!-- SEXO -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-semibold px-2.5 py-1 rounded-xl border text-[11px] uppercase tracking-wide ${claseSexo}">
+                                <i class="fa-solid ${t.sexo.startsWith('M') ? 'fa-mars' : t.sexo.startsWith('F') ? 'fa-venus' : 'fa-genderless'} mr-1"></i> ${t.sexo}
+                            </span>
+                        </td>
+                        <!-- CELULAR -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-mono font-medium px-2.5 py-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-[11px]">
+                                <i class="fa-solid fa-phone text-slate-400 mr-1.5 text-[10px]"></i>${t.celular || 'N/A'}
+                            </span>
+                        </td>
+                        <!-- TIPO TRABAJO -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-bold px-2.5 py-1 rounded-xl border text-[11px] tracking-wider ${claseTrabajo}">
+                                <i class="fa-solid fa-briefcase mr-1 text-[10px]"></i> ${t.tipo_trabajo}
+                            </span>
+                        </td>
+                        <!-- MODALIDAD -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-bold px-2.5 py-1 rounded-xl border text-[11px] tracking-wider ${claseModalidad}">
+                                <i class="fa-solid ${t.modalidad.includes('CAMPAMENTO') ? 'fa-campground' : 'fa-house-user'} mr-1 text-[10px]"></i> ${t.modalidad}
+                            </span>
+                        </td>
+                        <!-- EXPERIENCIA -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-medium px-2.5 py-1 rounded-xl border text-[11px] max-w-[160px] truncate ${claseExperiencia}" title="${t.experiencia}">
+                                <i class="fa-solid fa-star mr-1 text-[10px] text-amber-500"></i> ${t.experiencia}
+                            </span>
+                        </td>
+                        <!-- ZONA -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-semibold px-2.5 py-1 rounded-xl border border-amber-200 bg-amber-50/40 text-amber-900 text-[11px] uppercase">
+                                <i class="fa-solid fa-location-dot text-amber-600 mr-1 text-[10px]"></i> ${t.zona}
+                            </span>
+                        </td>
+                        <!-- DNI (TEXTO) -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-mono font-bold px-2.5 py-1 rounded-xl border border-slate-300 bg-white text-slate-800 text-[11px] tracking-wider shadow-2xs">
+                                <i class="fa-solid fa-id-card text-slate-400 mr-1.5 text-[10px]"></i>${t.dni}
+                            </span>
+                        </td>
+                        <!-- CATEGORIZACIÓN -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-extrabold px-3 py-1 rounded-xl border text-[11px] tracking-wide shadow-2xs ${claseColorCat}">
+                                <i class="fa-solid fa-award mr-1 text-[11px]"></i> ${t.categorizacion}
+                            </span>
+                        </td>
+                        <!-- EVENTO REGISTRO -->
+                        <td class="py-3 px-4">
+                            <span class="inline-flex items-center font-medium px-2.5 py-1 rounded-xl border border-violet-200 bg-violet-50 text-violet-700 text-[11px]">
+                                <i class="fa-solid fa-calendar-check mr-1.5 text-[10px]"></i> ${t.evento_registro}
+                            </span>
+                        </td>
                     </tr>`;
                 tablaCuerpo.insertAdjacentHTML('beforeend', filaHTML);
             });
@@ -337,7 +396,6 @@
 
         function exportarExcel() {
             if (datosFiltradosActuales.length === 0) return;
-            // Preserva el orden estructurado de columnas para la exportación ordenada en formato XLSX
             const datosAcondicionados = datosFiltradosActuales.map(t => ({
                 "Apellidos y Nombres": t.nombre, 
                 "Sexo": t.sexo, 
