@@ -166,7 +166,9 @@
                     zona: (limpiar(celdas[7]) || "N/A").toUpperCase(),
                     dni: dni,
                     categorizacion: (limpiar(celdas[9]) || "SIN CATEGORIA").toUpperCase(),
-                    evento_registro: limpiar(celdas[10]) || "N/A"
+                    evento_registro: limpiar(celdas[11]) || "N/A",
+                    semana_activo: limpiar(celdas[12]) || "N/A",
+                    alerta: (limpiar(celdas[13]) || "NINGUNA").toUpperCase()
                 });
             }
             return resultado;
@@ -237,6 +239,12 @@
             return "text-slate-500";
         }
 
+        function obtenerColorAlerta(alerta) {
+            const alt = alerta.trim().toUpperCase();
+            if (alt.includes("NINGUNA") || alt === "" || alt === "N/A") return "text-slate-700";
+            return "text-red-600 font-extrabold animate-pulse";
+        }
+
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
             document.getElementById('stat-destacado').innerText = datos.filter(t => t.categorizacion.includes("EXCELENTE") || t.categorizacion.includes("BUENO")).length;
@@ -251,7 +259,7 @@
             }
             let numero = whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
+            const mensaje = `Hola *${nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -274,6 +282,7 @@
             for (let i = 0; i < datos.length; i++) {
                 const t = datos[i];
                 const colorCat = obtenerColorCategorizacion(t.categorizacion);
+                const colorAlerta = obtenerColorAlerta(t.alerta);
 
                 htmlAcumulado += `
                     <div class="bg-white rounded-2xl shadow-xs border-l-4 border-emerald-500 border border-y-slate-100 border-r-slate-100 p-5 flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
@@ -293,7 +302,7 @@
 
                             <hr class="border-slate-100 mb-4"/>
 
-                            <!-- GRILLA DE DATOS INTERNOS (REPLICA EXACTA DE TU DISEÑO) -->
+                            <!-- GRILLA DE DATOS INTERNOS (REPLICA EXACTA DE TU DISEÑO + MODIFICACIONES) -->
                             <div class="grid grid-cols-2 gap-y-3.5 gap-x-2 text-xs">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CRITERIO (GH)</p>
@@ -326,6 +335,15 @@
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SEXO</p>
                                     <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.sexo}</p>
+                                </div>
+                                <!-- NUEVAS COLUMNAS INTEGRADAS -->
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SEMANA ACTIVO</p>
+                                    <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.semana_activo}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ALERTA</p>
+                                    <p class="${colorAlerta} mt-0.5 uppercase">${t.alerta}</p>
                                 </div>
                             </div>
                         </div>
@@ -378,7 +396,9 @@
                 "Zona": t.zona, 
                 "DNI": t.dni,
                 "Categorización": t.categorizacion, 
-                "Evento Registro": t.evento_registro
+                "Evento Registro": t.evento_registro,
+                "Semana Activo": t.semana_activo,
+                "Alerta": t.alerta
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
