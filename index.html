@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-    <title>Portal Agrícola Huarmey | fundo Frusan - Portal filtro de empadronamiento</title>
+    <title>Portal Frusan - Control de Cosecha 2026</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css"/>
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -24,14 +24,14 @@
                     <img src="ICO FRUSAN.png" alt="Logo Frusan" class="object-contain w-full h-full"/>
                 </div>
                 <div>
-                    <h1 class="text-2xl font-bold tracking-tight">Agrícola Huarmey | fundo Frusan</h1>
-                    <p class="text-xs text-red-200 font-light text-left">Control de Personal · Filtro de Empadronamiento Campaña Arándanos 2026</p>
+                    <h1 class="text-2xl font-bold tracking-tight">AGrícola Haurmey, fundo Frusan</h1>
+                    <p class="text-xs text-red-200 font-light text-left">Control de Personal · Campaña Arándanos 2026</p>
                 </div>
             </div>
             
             <div id="connection-status" class="flex items-center gap-2 bg-black/30 px-4 py-2 rounded-xl border border-white/10 text-xs font-medium">
                 <i class="fa-solid fa-circle-notch animate-spin text-amber-400" id="status-icon"></i>
-                <span id="status-text" class="text-red-100">Estableciendo conexión con la base de datos...</span>
+                <span id="status-text" class="text-red-100">Estableciendo canal de datos...</span>
             </div>
         </div>
     </header>
@@ -41,28 +41,28 @@
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Empadronados</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Encontrados</p>
                     <h3 id="stat-total" class="text-2xl font-bold text-slate-800 mt-1">0</h3>
                 </div>
                 <div class="bg-red-50 text-[#b92519] p-3 rounded-xl"><i class="fa-solid fa-users text-xl"></i></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal Antiguo</p>
-                    <h3 id="stat-antiguo" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal Excelente/Bueno</p>
+                    <h3 id="stat-destacado" class="text-2xl font-bold text-emerald-600 mt-1">0</h3>
                 </div>
                 <div class="bg-emerald-50 text-emerald-600 p-3 rounded-xl"><i class="fa-solid fa-user-check text-xl"></i></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Personal Nuevo</p>
-                    <h3 id="stat-nuevo" class="text-2xl font-bold text-amber-600 mt-1">0</h3>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Sin Categoría</p>
+                    <h3 id="stat-sincat" class="text-2xl font-bold text-slate-600 mt-1">0</h3>
                 </div>
-                <div class="bg-amber-50 text-amber-600 p-3 rounded-xl"><i class="fa-solid fa-user-plus text-xl"></i></div>
+                <div class="bg-slate-100 text-slate-600 p-3 rounded-xl"><i class="fa-solid fa-user-plus text-xl"></i></div>
             </div>
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
-                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Total Campamento</p>
+                    <p class="text-xs font-semibold text-slate-400 uppercase tracking-wider">Campamento</p>
                     <h3 id="stat-campamento" class="text-2xl font-bold text-indigo-600 mt-1">0</h3>
                 </div>
                 <div class="bg-indigo-50 text-indigo-600 p-3 rounded-xl"><i class="fa-solid fa-campground text-xl"></i></div>
@@ -112,12 +112,6 @@
                         <option value="">TODOS</option>
                     </select>
                 </div>
-                <div>
-                    <label class="block text-xs font-semibold text-slate-500 mb-1">Experiencia</label>
-                    <select id="filter-experiencia" onchange="filtrarPersonal()" class="w-full px-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]">
-                        <option value="">TODOS</option>
-                    </select>
-                </div>
             </div>
         </div>
 
@@ -128,14 +122,15 @@
                         <tr class="bg-slate-100/80 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
                             <th class="py-3.5 px-4 text-center w-16">WhatsApp</th>
                             <th class="py-3.5 px-4">Apellidos y Nombres</th>
+                            <th class="py-3.5 px-4">Sexo</th>
+                            <th class="py-3.5 px-4">Celular</th>
+                            <th class="py-3.5 px-4">Tipo Trabajo</th>
+                            <th class="py-3.5 px-4">Modalidad</th>
+                            <th class="py-3.5 px-4">Experiencia</th>
+                            <th class="py-3.5 px-4">Zona</th>
                             <th class="py-3.5 px-4">DNI</th>
                             <th class="py-3.5 px-4">Categorización</th>
                             <th class="py-3.5 px-4">Evento Registro</th>
-                            <th class="py-3.5 px-4">Modalidad</th>
-                            <th class="py-3.5 px-4">Tipo Trabajo</th>
-                            <th class="py-3.5 px-4">Zona</th>
-                            <th class="py-3.5 px-4">Experiencia</th>
-                            <th class="py-3.5 px-4 text-center">Días Lab.</th>
                         </tr>
                     </thead>
                     <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-sm"></tbody>
@@ -144,7 +139,7 @@
 
             <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
                 <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando con la base de datos...</p>
+                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base datos...</p>
             </div>
 
             <div id="no-results" class="hidden py-12 text-center text-slate-400">
@@ -156,31 +151,12 @@
 
     <script>
         const SHEET_ID = "1eGrz1am48_579m7mJ24Yqq8ldbwkMlzgH8cqLq81AXs";
-        const SHEET_NAME = "DATA_GOOGLE SHEETS";
+        const SHEET_NAME = "dashboard";
+        
         const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
-
-        function dividirFilaCSV(linea) {
-            const campos = [];
-            let dentroDeComillas = false;
-            let campoActual = '';
-
-            for (let i = 0; i < linea.length; i++) {
-                const caracter = linea[i];
-                if (caracter === '"') {
-                    dentroDeComillas = !dentroDeComillas;
-                } else if (caracter === ',' && !dentroDeComillas) {
-                    campos.push(campoActual.trim());
-                    campoActual = '';
-                } else {
-                    campoActual += caracter;
-                }
-            }
-            campos.push(campoActual.trim());
-            return campos;
-        }
 
         function parsearCSV(textoCSV) {
             const lineas = textoCSV.split(/\r?\n/);
@@ -189,25 +165,27 @@
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 
-                const celdas = dividirFilaCSV(lineas[i]);
-                const nombre = celdas[0];
-                const dni = celdas[8];
+                // Procesamiento robusto de comas y comillas en formato CSV nativo de Sheets
+                const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
+                const limpiar = (valor) => valor ? valor.replace(/^"| font-mono "$/g, '').trim() : "";
+                
+                const nombre = limpiar(celdas[0]);
+                const dni = limpiar(celdas[8]);
                 
                 if (!nombre && !dni) continue;
 
                 resultado.push({
-                    nombre: nombre.toUpperCase().trim(),
-                    sexo: (celdas[1] || "N/A").trim(),
-                    celular: (celdas[2] || "").trim(),
-                    whatsapp: (celdas[3] || "").trim(),
-                    tipo_trabajo: (celdas[4] || "CAMPO").toUpperCase().trim(),
-                    modalidad: (celdas[5] || "N/A").toUpperCase().trim(),
-                    experiencia: (celdas[6] || "NINGUNO").toUpperCase().trim(),
-                    zona: (celdas[7] || "N/A").toUpperCase().trim(),
-                    dni: (dni || "").trim(),
-                    categorizacion: (celdas[9] || "").toUpperCase().trim(), // Columna J original
-                    total_dias_laborados: (celdas[10] || "0").trim(),
-                    evento_registro: (celdas[11] || "").toUpperCase().trim() // Columna L original
+                    nombre: nombre.toUpperCase(),
+                    sexo: limpiar(celdas[1]) || "N/A",
+                    celular: limpiar(celdas[2]),
+                    whatsapp: limpiar(celdas[3]),
+                    tipo_trabajo: (limpiar(celdas[4]) || "CAMPO").toUpperCase(),
+                    modalidad: (limpiar(celdas[5]) || "N/A").toUpperCase(),
+                    experiencia: (limpiar(celdas[6]) || "NINGUNO").toUpperCase(),
+                    zona: (limpiar(celdas[7]) || "N/A").toUpperCase(),
+                    dni: dni,
+                    categorizacion: (limpiar(celdas[9]) || "SIN CATEGORIA").toUpperCase(),
+                    evento_registro: limpiar(celdas[10]) || "N/A"
                 });
             }
             return resultado;
@@ -220,7 +198,7 @@
 
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Fallo en la comunicación');
+                if (!response.ok) throw new Error('Fallo en la comunicación con el servidor de archivos.');
                 
                 const textoCSV = await response.text();
                 listaTrabajadores = parsearCSV(textoCSV);
@@ -228,7 +206,7 @@
                 
                 statusContainer.className = "flex items-center gap-2 bg-emerald-950/50 px-4 py-2 rounded-xl border border-emerald-500/30 text-xs font-medium text-emerald-400";
                 statusIcon.className = "fa-solid fa-circle text-emerald-400 text-[10px] animate-pulse";
-                statusText.innerText = "Conectado a la base en línea";
+                statusText.innerText = "Conectado a Google Sheets Directo";
                 document.getElementById('loading-state').classList.add('hidden');
                 
                 configurarFiltrosDinamicos(listaTrabajadores);
@@ -239,6 +217,16 @@
                 statusContainer.className = "flex items-center gap-2 bg-red-950/50 px-4 py-2 rounded-xl border border-red-500/30 text-xs font-medium text-red-400";
                 statusIcon.className = "fa-solid fa-circle-exclamation text-red-400 text-sm";
                 statusText.innerText = "Error de Acceso Directo";
+
+                document.getElementById('loading-state').innerHTML = `
+                    <div class="text-center text-red-500 p-6 max-w-lg mx-auto bg-red-50 rounded-2xl border border-red-200">
+                        <i class="fa-solid fa-file-excel text-3xl mb-2"></i>
+                        <p class="font-bold text-sm">Error de lectura de archivo</p>
+                        <p class="text-xs text-slate-600 mt-2 text-left leading-relaxed">
+                            Asegúrate de haber completado el acceso general a <b>'Cualquier persona con el enlace'</b> en modo Lector en el Sheets original.
+                        </p>
+                    </div>
+                `;
             }
         }
 
@@ -247,12 +235,10 @@
                 'categorizacion': 'filter-categorizacion',
                 'evento_registro': 'filter-evento',
                 'modalidad': 'filter-modalidad',
-                'tipo_trabajo': 'filter-trabajo',
-                'experiencia': 'filter-experiencia'
+                'tipo_trabajo': 'filter-trabajo'
             };
             Object.keys(campos).forEach(propiedad => {
                 const selectElement = document.getElementById(campos[propiedad]);
-                selectElement.innerHTML = '<option value="">TODOS</option>';
                 const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
                 valoresUnicos.forEach(valor => {
                     const opt = document.createElement('option');
@@ -262,21 +248,27 @@
             });
         }
 
+        function obtenerEstiloCategorizacion(cat) {
+            const categoria = cat.trim().toUpperCase();
+            if (categoria.includes("EXCELENTE")) {
+                return "text-emerald-600 border-emerald-200 bg-emerald-50";
+            } else if (categoria.includes("BUENO")) {
+                return "text-blue-600 border-blue-200 bg-blue-50";
+            } else if (categoria.includes("REGULAR")) {
+                return "text-orange-500 border-orange-200 bg-orange-50";
+            } else if (categoria.includes("MALO")) {
+                return "text-red-600 border-red-200 bg-red-50";
+            } else {
+                // SIN CATEGORIA / Otros (Color Negro)
+                return "text-black border-slate-300 bg-slate-100";
+            }
+        }
+
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
-            
-            // CONTEO REALIZADO EN LA COLUMNA "EVENTO REGISTRO"
-            const totalAntiguos = datos.filter(t => 
-                t.evento_registro && t.evento_registro.includes("PERSONAL ANTIGUO")
-            ).length;
-            document.getElementById('stat-antiguo').innerText = totalAntiguos;
-            
-            const totalNuevos = datos.filter(t => 
-                t.evento_registro && t.evento_registro.includes("PERSONAL NUEVO")
-            ).length;
-            document.getElementById('stat-nuevo').innerText = totalNuevos;
-            
-            document.getElementById('stat-campamento').innerText = datos.filter(t => /CAMPAMENTO/.test(t.modalidad)).length;
+            document.getElementById('stat-destacado').innerText = datos.filter(t => t.categorizacion.includes("EXCELENTE") || t.categorizacion.includes("BUENO")).length;
+            document.getElementById('stat-sincat').innerText = datos.filter(t => t.categorizacion.includes("SIN CATEGORIA")).length;
+            document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
         function enviarInvitacionWhatsApp(trabajador) {
@@ -286,7 +278,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Agrícola Huarmey | fundo Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Como parte de nuestro personal calificado de la zona de *${trabajador.zona}*, queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje. ¡Que tengas un excelente día!`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
@@ -302,10 +294,7 @@
             noResults.classList.add('hidden');
 
             datos.forEach(t => {
-                // El diseño del Badge se adapta según el valor de CATEGORIZACIÓN asignado
-                const esAntiguo = t.categorizacion && t.categorizacion.includes("PERSONAL ANTIGUO");
-                const badgeStyle = esAntiguo ? "bg-emerald-50 text-emerald-700 border-emerald-200" : "bg-amber-50 text-amber-700 border-amber-200";
-                
+                const claseColor = obtenerEstiloCategorizacion(t.categorizacion);
                 const filaHTML = `
                     <tr class="hover:bg-slate-50 transition-colors border-b border-slate-100">
                         <td class="py-3 px-4 text-center">
@@ -314,14 +303,15 @@
                             </button>
                         </td>
                         <td class="py-3 px-4 font-semibold text-slate-800 uppercase tracking-tight">${t.nombre}</td>
-                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
-                        <td class="py-3 px-4"><span class="text-[11px] font-medium px-2 py-0.5 rounded-md border ${badgeStyle}">${t.categorizacion || "N/A"}</span></td>
-                        <td class="py-3 px-4 text-xs font-semibold text-slate-600">${t.evento_registro || "N/A"}</td>
-                        <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
+                        <td class="py-3 px-4 text-xs text-slate-600">${t.sexo}</td>
+                        <td class="py-3 px-4 text-xs text-slate-600 font-mono">${t.celular}</td>
                         <td class="py-3 px-4 text-xs font-bold text-slate-500">${t.tipo_trabajo}</td>
-                        <td class="py-3 px-4 text-slate-600 uppercase">${t.zona}</td>
+                        <td class="py-3 px-4 text-xs font-medium text-indigo-600">${t.modalidad}</td>
                         <td class="py-3 px-4 text-xs text-slate-500 max-w-xs truncate">${t.experiencia}</td>
-                        <td class="py-3 px-4 text-center font-bold text-slate-700">${t.total_dias_laborados}</td>
+                        <td class="py-3 px-4 text-slate-600 uppercase text-xs">${t.zona}</td>
+                        <td class="py-3 px-4 text-slate-500 font-mono text-xs">${t.dni}</td>
+                        <td class="py-3 px-4"><span class="text-[11px] font-bold px-2 py-0.5 rounded-md border ${claseColor}">${t.categorizacion}</span></td>
+                        <td class="py-3 px-4 text-xs text-slate-600">${t.evento_registro}</td>
                     </tr>`;
                 tablaCuerpo.insertAdjacentHTML('beforeend', filaHTML);
             });
@@ -333,7 +323,6 @@
             const fEvt = document.getElementById('filter-evento').value;
             const fMod = document.getElementById('filter-modalidad').value;
             const fTrab = document.getElementById('filter-trabajo').value;
-            const fExp = document.getElementById('filter-experiencia').value;
 
             datosFiltradosActuales = listaTrabajadores.filter(t => {
                 const cumpleBusqueda = queryBar === "" || t.nombre.toLowerCase().includes(queryBar) || t.dni.includes(queryBar);
@@ -341,27 +330,26 @@
                 const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
                 const cumpleMod = fMod === "" || t.modalidad === fMod;
                 const cumpleTrab = fTrab === "" || t.tipo_trabajo === fTrab;
-                const cumpleExp = fExp === "" || t.experiencia === fExp;
-                return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab && cumpleExp;
+                return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab;
             });
             renderizarTabla(datosFiltradosActuales);
         }
 
         function exportarExcel() {
             if (datosFiltradosActuales.length === 0) return;
+            // Preserva el orden estructurado de columnas para la exportación ordenada en formato XLSX
             const datosAcondicionados = datosFiltradosActuales.map(t => ({
                 "Apellidos y Nombres": t.nombre, 
-                "DNI": t.dni, 
                 "Sexo": t.sexo, 
                 "Celular": t.celular, 
                 "WhatsApp": t.whatsapp,
-                "Categorización": t.categorizacion, 
-                "Evento Registro": t.evento_registro || "N/A", 
-                "Modalidad": t.modalidad,
                 "Tipo de Trabajo": t.tipo_trabajo, 
-                "Zona": t.zona, 
+                "Modalidad": t.modalidad,
                 "Experiencia": t.experiencia, 
-                "Días Laborados": parseInt(t.total_dias_laborados) || 0
+                "Zona": t.zona, 
+                "DNI": t.dni,
+                "Categorización": t.categorizacion, 
+                "Evento Registro": t.evento_registro
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
