@@ -278,7 +278,7 @@
             }
             let numero = trabajador.whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🍇. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
+            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
