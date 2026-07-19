@@ -38,6 +38,7 @@
 
     <main class="max-w-[95%] mx-auto my-6 px-2">
         
+        <!-- ESTADÍSTICAS -->
         <div class="grid grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
             <div class="bg-white p-4 rounded-2xl shadow-sm border border-slate-100 flex items-center justify-between">
                 <div>
@@ -69,6 +70,7 @@
             </div>
         </div>
 
+        <!-- FILTROS AVANZADOS -->
         <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-100 mb-6 space-y-4">
             <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
                 <h3 class="text-sm font-bold text-slate-700 uppercase tracking-wider flex items-center gap-2">
@@ -115,44 +117,24 @@
             </div>
         </div>
 
-        <div class="bg-white rounded-2xl shadow-sm border border-slate-100 overflow-hidden">
-            <div class="overflow-x-auto">
-                <table class="w-full text-left border-collapse whitespace-nowrap">
-                    <thead>
-                        <tr class="bg-slate-100/80 text-slate-600 text-xs font-bold uppercase tracking-wider border-b border-slate-200">
-                            <th class="py-3.5 px-4 text-center w-16">WhatsApp</th>
-                            <th class="py-3.5 px-4">Apellidos y Nombres</th>
-                            <th class="py-3.5 px-4">Sexo</th>
-                            <th class="py-3.5 px-4">Celular</th>
-                            <th class="py-3.5 px-4">Tipo Trabajo</th>
-                            <th class="py-3.5 px-4">Modalidad</th>
-                            <th class="py-3.5 px-4">Experiencia</th>
-                            <th class="py-3.5 px-4">Zona</th>
-                            <th class="py-3.5 px-4">DNI</th>
-                            <th class="py-3.5 px-4">Categorización</th>
-                            <th class="py-3.5 px-4">Evento Registro</th>
-                        </tr>
-                    </thead>
-                    <tbody id="tabla-cuerpo" class="divide-y divide-slate-100 text-sm"></tbody>
-                </table>
-            </div>
+        <!-- CONTENEDOR DE TARJETAS (REMPLAZO DE LA TABLA) -->
+        <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
 
-            <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3">
-                <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
-                <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base datos...</p>
-            </div>
+        <!-- ESTADOS DE ESPERA -->
+        <div id="loading-state" class="py-12 flex flex-col items-center justify-center gap-3 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <i class="fa-solid fa-spinner text-3xl text-[#b92519] animate-spin"></i>
+            <p class="text-sm text-slate-500 animate-pulse">Sincronizando de forma directa a la base datos...</p>
+        </div>
 
-            <div id="no-results" class="hidden py-12 text-center text-slate-400">
-                <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
-                <p class="text-sm">Ningún trabajador coincide con la búsqueda.</p>
-            </div>
+        <div id="no-results" class="hidden py-12 text-center text-slate-400 bg-white rounded-2xl border border-slate-100 shadow-sm">
+            <i class="fa-solid fa-folder-open text-3xl mb-2"></i>
+            <p class="text-sm">Ningún trabajador coincide con la búsqueda.</p>
         </div>
     </main>
 
     <script>
         const SHEET_ID = "1eGrz1am48_579m7mJ24Yqq8ldbwkMlzgH8cqLq81AXs";
         const SHEET_NAME = "dashboard";
-        
         const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:csv&sheet=${encodeURIComponent(SHEET_NAME)}`;
 
         let listaTrabajadores = [];
@@ -166,7 +148,7 @@
                 if (!lineas[i].trim()) continue;
                 
                 const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                const limpiar = (valor) => valor ? valor.replace(/^"| font-mono "$/g, '').trim() : "";
+                const limpiar = (valor) => valor ? valor.replace(/^"|font-mono|"$/g, '').trim() : "";
                 
                 const nombre = limpiar(celdas[0]);
                 const dni = limpiar(celdas[8]);
@@ -197,7 +179,7 @@
 
             try {
                 const response = await fetch(API_URL);
-                if (!response.ok) throw new Error('Fallo en la comunicación con el servidor de archivos.');
+                if (!response.ok) throw new Error('Fallo en la comunicación con el servidor.');
                 
                 const textoCSV = await response.text();
                 listaTrabajadores = parsearCSV(textoCSV);
@@ -209,7 +191,7 @@
                 document.getElementById('loading-state').classList.add('hidden');
                 
                 configurarFiltrosDinamicos(listaTrabajadores);
-                renderizarTabla(listaTrabajadores);
+                renderizarTarjetas(listaTrabajadores);
 
             } catch (error) {
                 console.error(error);
@@ -247,19 +229,12 @@
             });
         }
 
-        function obtenerEstiloCategorizacion(cat) {
+        function obtenerColorCategorizacion(cat) {
             const categoria = cat.trim().toUpperCase();
-            if (categoria.includes("EXCELENTE")) {
-                return "text-emerald-700 border-emerald-200 bg-emerald-50/80";
-            } else if (categoria.includes("BUENO")) {
-                return "text-blue-700 border-blue-200 bg-blue-50/80";
-            } else if (categoria.includes("REGULAR")) {
-                return "text-orange-600 border-orange-200 bg-orange-50/80";
-            } else if (categoria.includes("MALO")) {
-                return "text-red-700 border-red-200 bg-red-50/80";
-            } else {
-                return "text-slate-700 border-slate-300 bg-slate-100/80";
-            }
+            if (categoria.includes("EXCELENTE") || categoria.includes("BUENO")) return "text-emerald-600";
+            if (categoria.includes("REGULAR")) return "text-orange-500";
+            if (categoria.includes("MALO")) return "text-red-600";
+            return "text-slate-500";
         }
 
         function actualizarEstadisticas(datos) {
@@ -269,111 +244,107 @@
             document.getElementById('stat-campamento').innerText = datos.filter(t => t.modalidad.includes("CAMPAMENTO")).length;
         }
 
-        function enviarInvitacionWhatsApp(trabajador) {
-            if(!trabajador.whatsapp || trabajador.whatsapp.trim() === "") {
+        function enviarInvitacionWhatsApp(nombre, whatsapp) {
+            if(!whatsapp || whatsapp.trim() === "") {
                 Swal.fire({ icon: 'warning', title: 'Sin WhatsApp', text: 'Número de contacto no registrado.' });
                 return;
             }
-            let numero = trabajador.whatsapp.replace(/\D/g, '');
+            let numero = whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${trabajador.nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
+            const mensaje = `Hola *${nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        function renderizarTabla(datos) {
-            const tablaCuerpo = document.getElementById('tabla-cuerpo');
+        // FUNCIÓN OPTIMIZADA: RENDERIZADO EN BLOQUE (ALTA VELOCIDAD)
+        function renderizarTarjetas(datos) {
+            const contenedor = document.getElementById('cards-container');
             const noResults = document.getElementById('no-results');
-            tablaCuerpo.innerHTML = "";
+            
             actualizarEstadisticas(datos);
 
             if (datos.length === 0) {
-                noResults.classList.remove('hidden'); return;
+                contenedor.innerHTML = "";
+                noResults.classList.remove('hidden'); 
+                return;
             }
             noResults.classList.add('hidden');
 
-            datos.forEach(t => {
-                const claseColorCat = obtenerEstiloCategorizacion(t.categorizacion);
-                
-                // Estilos para Sexo
-                const claseSexo = t.sexo.startsWith('M') ? 'bg-blue-50 text-blue-700 border-blue-200' : 
-                                  t.sexo.startsWith('F') ? 'bg-purple-50 text-purple-700 border-purple-200' : 'bg-slate-50 text-slate-600 border-slate-200';
-                
-                // Estilos para Tipo Trabajo
-                const claseTrabajo = t.tipo_trabajo.includes('CAMPO') ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-cyan-50 text-cyan-800 border-cyan-200';
-                
-                // Estilos para Modalidad
-                const claseModalidad = t.modalidad.includes('CAMPAMENTO') ? 'bg-indigo-50 text-indigo-700 border-indigo-200' : 'bg-teal-50 text-teal-700 border-teal-200';
+            let htmlAcumulado = ""; // Optimización crítica: Evita lag acumulando texto plano en memoria
 
-                // Estilos para Experiencia
-                const claseExperiencia = t.experiencia.includes('NINGUNO') || t.experiencia.includes('SIN') ? 'bg-slate-100 text-slate-600 border-slate-200' : 'bg-emerald-50 text-emerald-800 border-emerald-200';
+            for (let i = 0; i < datos.length; i++) {
+                const t = datos[i];
+                const colorCat = obtenerColorCategorizacion(t.categorizacion);
 
-                const filaHTML = `
-                    <tr class="hover:bg-slate-50/80 transition-colors border-b border-slate-100">
-                        <!-- WHATSAPP -->
-                        <td class="py-3 px-4 text-center">
-                            <button onclick='enviarInvitacionWhatsApp(${JSON.stringify(t)})' class="bg-red-50 text-[#b92519] hover:bg-[#b92519] hover:text-white p-2 rounded-xl transition-all duration-200 shadow-sm transform hover:scale-105">
-                                <i class="fa-brands fa-whatsapp text-lg"></i>
+                htmlAcumulado += `
+                    <div class="bg-white rounded-2xl shadow-xs border-l-4 border-emerald-500 border border-y-slate-100 border-r-slate-100 p-5 flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
+                        <div>
+                            <!-- TOP HEADER DE TARJETA -->
+                            <div class="flex items-center justify-between gap-2 mb-2">
+                                <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md tracking-wider font-mono">
+                                    DNI: ${t.dni}
+                                </span>
+                                <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">Campaña 2026</span>
+                            </div>
+
+                            <!-- NOMBRE DEL TRABAJADOR -->
+                            <h2 class="text-base font-bold text-slate-800 tracking-tight leading-tight uppercase mb-4 min-h-[44px] line-clamp-2">
+                                ${t.nombre}
+                            </h2>
+
+                            <hr class="border-slate-100 mb-4"/>
+
+                            <!-- GRILLA DE DATOS INTERNOS (REPLICA EXACTA DE TU DISEÑO) -->
+                            <div class="grid grid-cols-2 gap-y-3.5 gap-x-2 text-xs">
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CRITERIO (GH)</p>
+                                    <p class="font-extrabold ${colorCat} uppercase tracking-wide mt-0.5">${t.categorizacion}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CELULAR</p>
+                                    <p class="font-bold text-slate-700 mt-0.5 font-mono">${t.celular || 'SIN NÚMERO'}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">TIPO TRABAJO</p>
+                                    <p class="font-bold text-slate-700 mt-0.5">${t.tipo_trabajo}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">MODALIDAD</p>
+                                    <p class="font-bold text-slate-700 mt-0.5">${t.modalidad}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">EXPERIENCIA</p>
+                                    <p class="font-medium text-slate-600 mt-0.5 truncate max-w-[140px]" title="${t.experiencia}">${t.experiencia}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ZONA</p>
+                                    <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.zona}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">EVENTO REGISTRO</p>
+                                    <p class="font-medium text-slate-600 mt-0.5 truncate max-w-[140px]">${t.evento_registro}</p>
+                                </div>
+                                <div>
+                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SEXO</p>
+                                    <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.sexo}</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- FOOTER DE TARJETA CON BOTÓN WHATSAPP -->
+                        <div class="flex items-center justify-between gap-2 mt-5 pt-3 border-t border-slate-50">
+                            <span class="inline-flex items-center bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
+                                <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></span> Activo
+                            </span>
+                            <button onclick="enviarInvitacionWhatsApp('${t.nombre}', '${t.whatsapp}')" 
+                                    class="inline-flex items-center justify-center gap-2 bg-[#25d366] hover:bg-[#1ebd59] text-white text-xs font-bold px-4 py-2 rounded-xl shadow-xs transition-all duration-200 transform hover:scale-[1.02]">
+                                <i class="fa-brands fa-whatsapp text-sm"></i> WhatsApp
                             </button>
-                        </td>
-                        <!-- APELLIDOS Y NOMBRES -->
-                        <td class="py-3 px-4 font-bold text-slate-900 tracking-tight text-xs uppercase max-w-xs truncate">${t.nombre}</td>
-                        <!-- SEXO -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-semibold px-2.5 py-1 rounded-xl border text-[11px] uppercase tracking-wide ${claseSexo}">
-                                <i class="fa-solid ${t.sexo.startsWith('M') ? 'fa-mars' : t.sexo.startsWith('F') ? 'fa-venus' : 'fa-genderless'} mr-1"></i> ${t.sexo}
-                            </span>
-                        </td>
-                        <!-- CELULAR -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-mono font-medium px-2.5 py-1 rounded-xl border border-slate-200 bg-slate-50 text-slate-700 text-[11px]">
-                                <i class="fa-solid fa-phone text-slate-400 mr-1.5 text-[10px]"></i>${t.celular || 'N/A'}
-                            </span>
-                        </td>
-                        <!-- TIPO TRABAJO -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-bold px-2.5 py-1 rounded-xl border text-[11px] tracking-wider ${claseTrabajo}">
-                                <i class="fa-solid fa-briefcase mr-1 text-[10px]"></i> ${t.tipo_trabajo}
-                            </span>
-                        </td>
-                        <!-- MODALIDAD -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-bold px-2.5 py-1 rounded-xl border text-[11px] tracking-wider ${claseModalidad}">
-                                <i class="fa-solid ${t.modalidad.includes('CAMPAMENTO') ? 'fa-campground' : 'fa-house-user'} mr-1 text-[10px]"></i> ${t.modalidad}
-                            </span>
-                        </td>
-                        <!-- EXPERIENCIA -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-medium px-2.5 py-1 rounded-xl border text-[11px] max-w-[160px] truncate ${claseExperiencia}" title="${t.experiencia}">
-                                <i class="fa-solid fa-star mr-1 text-[10px] text-amber-500"></i> ${t.experiencia}
-                            </span>
-                        </td>
-                        <!-- ZONA -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-semibold px-2.5 py-1 rounded-xl border border-amber-200 bg-amber-50/40 text-amber-900 text-[11px] uppercase">
-                                <i class="fa-solid fa-location-dot text-amber-600 mr-1 text-[10px]"></i> ${t.zona}
-                            </span>
-                        </td>
-                        <!-- DNI (TEXTO) -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-mono font-bold px-2.5 py-1 rounded-xl border border-slate-300 bg-white text-slate-800 text-[11px] tracking-wider shadow-2xs">
-                                <i class="fa-solid fa-id-card text-slate-400 mr-1.5 text-[10px]"></i>${t.dni}
-                            </span>
-                        </td>
-                        <!-- CATEGORIZACIÓN -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-extrabold px-3 py-1 rounded-xl border text-[11px] tracking-wide shadow-2xs ${claseColorCat}">
-                                <i class="fa-solid fa-award mr-1 text-[11px]"></i> ${t.categorizacion}
-                            </span>
-                        </td>
-                        <!-- EVENTO REGISTRO -->
-                        <td class="py-3 px-4">
-                            <span class="inline-flex items-center font-medium px-2.5 py-1 rounded-xl border border-violet-200 bg-violet-50 text-violet-700 text-[11px]">
-                                <i class="fa-solid fa-calendar-check mr-1.5 text-[10px]"></i> ${t.evento_registro}
-                            </span>
-                        </td>
-                    </tr>`;
-                tablaCuerpo.insertAdjacentHTML('beforeend', filaHTML);
-            });
+                        </div>
+                    </div>
+                `;
+            }
+
+            contenedor.innerHTML = htmlAcumulado; // Un solo impacto al DOM: Velocidad inmediata instantánea.
         }
 
         function filtrarPersonal() {
@@ -391,7 +362,7 @@
                 const cumpleTrab = fTrab === "" || t.tipo_trabajo === fTrab;
                 return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab;
             });
-            renderizarTabla(datosFiltradosActuales);
+            renderizarTarjetas(datosFiltradosActuales);
         }
 
         function exportarExcel() {
