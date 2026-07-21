@@ -140,6 +140,27 @@
         let listaTrabajadores = [];
         let datosFiltradosActuales = [];
 
+        // Función robusta para parsear líneas de CSV considerando comillas
+        function parsearLineaCSV(linea) {
+            const valores = [];
+            let dentroDeComillas = false;
+            let campoActual = '';
+
+            for (let i = 0; i < linea.length; i++) {
+                const char = linea[i];
+                if (char === '"') {
+                    dentroDeComillas = !dentroDeComillas;
+                } else if (char === ',' && !dentroDeComillas) {
+                    valores.push(campoActual.trim().replace(/^"|"$/g, ''));
+                    campoActual = '';
+                } else {
+                    campoActual += char;
+                }
+            }
+            valores.push(campoActual.trim().replace(/^"|"$/g, ''));
+            return valores;
+        }
+
         function parsearCSV(textoCSV) {
             const lineas = textoCSV.split(/\r?\n/);
             const resultado = [];
@@ -147,17 +168,17 @@
             for (let i = 1; i < lineas.length; i++) {
                 if (!lineas[i].trim()) continue;
                 
-                const celdas = lineas[i].match(/(".*?"|[^",\s]+)(?=\s*,|\s*$)/g) || [];
-                const limpiar = (valor) => valor ? valor.replace(/^"|font-mono|"$/g, '').trim() : "";
+                const celdas = parsearLineaCSV(lineas[i]);
+                const limpiar = (valor) => valor ? valor.replace(/^"|"$/g, '').trim() : "";
                 
                 const nombre = limpiar(celdas[0]);
                 let rawDni = limpiar(celdas[8]);
                 
                 if (!nombre && !rawDni) continue;
 
-                // Forzar formato de DNI a 8 dígitos rellenos con ceros a la izquierda
-                let dniLimpio = rawDni.replace(/^0+/, '');
-                let dniFormateado = (dniLimpio.length > 0 && dniLimpio.length <= 8 && !isNaN(dniLimpio))
+                // Formatear DNI conservando ceros a la izquierda
+                let dniLimpio = rawDni.replace(/\D/g, ''); // Deja solo dígitos
+                let dniFormateado = (dniLimpio.length > 0 && dniLimpio.length <= 8)
                     ? dniLimpio.padStart(8, '0')
                     : rawDni;
 
@@ -226,6 +247,7 @@
             };
             Object.keys(campos).forEach(propiedad => {
                 const selectElement = document.getElementById(campos[propiedad]);
+                selectElement.innerHTML = '<option value="">TODOS</option>';
                 const valoresUnicos = [...new Set(datos.map(t => t[propiedad]).filter(v => v && v !== "N/A" && v !== ""))].sort();
                 valoresUnicos.forEach(valor => {
                     const opt = document.createElement('option');
@@ -355,29 +377,45 @@
             const fMod = document.getElementById('filter-modalidad').value;
             const fTrab = document.getElementById('filter-trabajo').value;
 
-            // Búsqueda flexible de DNI (soporta ceros adelante y variantes numéricas)
-            const queryLimpia = queryRaw.replace(/^0+/, '');
-            const queryPad = (queryLimpia.length > 0 && queryLimpia.length <= 8 && !isNaN(queryLimpia)) 
-                ? queryLimpia.padStart(8, '0') 
-                : queryRaw;
+            // Extraer números limpios ingresados por el usuario
+            const queryNumeros = queryRaw.replace(/\D/g, '');
+            const querySoloTexto = queryRaw.replace(/[0-9]/g, '').trim();
 
             datosFiltradosActuales = listaTrabajadores.filter(t => {
-                const dniTexto = (t.dni || '').toString().toLowerCase();
-                const dniSinCeros = dniTexto.replace(/^0+/, '');
+                const dniTexto = (t.dni || '').toString();
+                const dniSoloNumeros = dniTexto.replace(/\D/g, '');
+                const nombreTexto = (t.nombre || '').toLowerCase();
 
-                const cumpleBusqueda = queryRaw === "" || 
-                                       t.nombre.toLowerCase().includes(queryRaw) || 
-                                       dniTexto.includes(queryRaw) || 
-                                       dniTexto.includes(queryPad) || 
-                                       (queryLimpia !== "" && dniSinCeros.includes(queryLimpia));
+                let coincideBusqueda = true;
+
+                if (queryRaw !== "") {
+                    let coincidenciaDni = false;
+                    let coincidenciaNombre = false;
+
+                    // Si se ingresaron números, verificar coincidencia parcial o exacta de DNI
+                    if (queryNumeros.length > 0) {
+                        const queryPad = queryNumeros.padStart(8, '0');
+                        coincidenciaDni = dniTexto.includes(queryRaw) || 
+                                         dniSoloNumeros.includes(queryNumeros) || 
+                                         dniTexto.includes(queryPad);
+                    }
+
+                    // Si hay texto o no coincidió por número, buscar en el nombre
+                    if (queryRaw.length > 0) {
+                        coincidenciaNombre = nombreTexto.includes(queryRaw);
+                    }
+
+                    coincideBusqueda = coincidenciaDni || coincidenciaNombre;
+                }
 
                 const cumpleCat = fCat === "" || t.categorizacion === fCat;
                 const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
                 const cumpleMod = fMod === "" || t.modalidad === fMod;
                 const cumpleTrab = fTrab === "" || t.tipo_trabajo === fTrab;
 
-                return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab;
+                return coincideBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab;
             });
+
             renderizarTarjetas(datosFiltradosActuales);
         }
 
