@@ -86,7 +86,7 @@
                     <label class="block text-xs font-semibold text-slate-500 mb-1">Nombre o DNI</label>
                     <div class="relative">
                         <i class="fa-solid fa-magnifying-glass absolute left-3 top-3 text-slate-400 text-xs"></i>
-                        <input type="text" id="search-bar" oninput="filtrarPersonal()" placeholder="Escribe para buscar..." 
+                        <input type="text" id="search-bar" oninput="filtrarPersonal()" placeholder="Escribe para buscar por DNI u opción..." 
                                class="w-full pl-9 pr-3 py-2 bg-slate-50 border border-slate-200 rounded-xl text-xs focus:outline-none focus:ring-2 focus:ring-[#b92519]"/>
                     </div>
                 </div>
@@ -355,24 +355,27 @@
             const fMod = document.getElementById('filter-modalidad').value;
             const fTrab = document.getElementById('filter-trabajo').value;
 
-            // Variantes para búsqueda flexible de DNI
+            // Búsqueda flexible de DNI (soporta ceros adelante y variantes numéricas)
             const queryLimpia = queryRaw.replace(/^0+/, '');
-            const queryPad = (queryLimpia.length > 0 && queryLimpia.length <= 8 && !isNaN(queryLimpio)) 
+            const queryPad = (queryLimpia.length > 0 && queryLimpia.length <= 8 && !isNaN(queryLimpia)) 
                 ? queryLimpia.padStart(8, '0') 
                 : queryRaw;
 
             datosFiltradosActuales = listaTrabajadores.filter(t => {
-                const dniTexto = t.dni.toLowerCase();
+                const dniTexto = (t.dni || '').toString().toLowerCase();
+                const dniSinCeros = dniTexto.replace(/^0+/, '');
+
                 const cumpleBusqueda = queryRaw === "" || 
                                        t.nombre.toLowerCase().includes(queryRaw) || 
                                        dniTexto.includes(queryRaw) || 
                                        dniTexto.includes(queryPad) || 
-                                       dniTexto.replace(/^0+/, '').includes(queryLimpia);
+                                       (queryLimpia !== "" && dniSinCeros.includes(queryLimpia));
 
                 const cumpleCat = fCat === "" || t.categorizacion === fCat;
                 const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
                 const cumpleMod = fMod === "" || t.modalidad === fMod;
                 const cumpleTrab = fTrab === "" || t.tipo_trabajo === fTrab;
+
                 return cumpleBusqueda && cumpleCat && cumpleEvt && cumpleMod && cumpleTrab;
             });
             renderizarTarjetas(datosFiltradosActuales);
