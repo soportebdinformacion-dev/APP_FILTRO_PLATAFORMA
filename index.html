@@ -117,7 +117,7 @@
             </div>
         </div>
 
-        <!-- CONTENEDOR DE TARJETAS (REMPLAZO DE LA TABLA) -->
+        <!-- CONTENEDOR DE TARJETAS -->
         <div id="cards-container" class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6"></div>
 
         <!-- ESTADOS DE ESPERA -->
@@ -151,9 +151,15 @@
                 const limpiar = (valor) => valor ? valor.replace(/^"|font-mono|"$/g, '').trim() : "";
                 
                 const nombre = limpiar(celdas[0]);
-                const dni = limpiar(celdas[8]);
+                let rawDni = limpiar(celdas[8]);
                 
-                if (!nombre && !dni) continue;
+                if (!nombre && !rawDni) continue;
+
+                // Forzar formato de DNI a 8 dígitos rellenos con ceros a la izquierda
+                let dniLimpio = rawDni.replace(/^0+/, '');
+                let dniFormateado = (dniLimpio.length > 0 && dniLimpio.length <= 8 && !isNaN(dniLimpio))
+                    ? dniLimpio.padStart(8, '0')
+                    : rawDni;
 
                 resultado.push({
                     nombre: nombre.toUpperCase(),
@@ -164,11 +170,9 @@
                     modalidad: (limpiar(celdas[5]) || "N/A").toUpperCase(),
                     experiencia: (limpiar(celdas[6]) || "NINGUNO").toUpperCase(),
                     zona: (limpiar(celdas[7]) || "N/A").toUpperCase(),
-                    dni: dni,
+                    dni: dniFormateado,
                     categorizacion: (limpiar(celdas[9]) || "SIN CATEGORIA").toUpperCase(),
-                    evento_registro: limpiar(celdas[11]) || "N/A",
-                    semana_activo: limpiar(celdas[12]) || "N/A",
-                    alerta: (limpiar(celdas[13]) || "NINGUNA").toUpperCase()
+                    evento_registro: limpiar(celdas[10]) || "N/A"
                 });
             }
             return resultado;
@@ -239,12 +243,6 @@
             return "text-slate-500";
         }
 
-        function obtenerColorAlerta(alerta) {
-            const alt = alerta.trim().toUpperCase();
-            if (alt.includes("NINGUNA") || alt === "" || alt === "N/A") return "text-slate-700";
-            return "text-red-600 font-extrabold animate-pulse";
-        }
-
         function actualizarEstadisticas(datos) {
             document.getElementById('stat-total').innerText = datos.length;
             document.getElementById('stat-destacado').innerText = datos.filter(t => t.categorizacion.includes("EXCELENTE") || t.categorizacion.includes("BUENO")).length;
@@ -259,11 +257,10 @@
             }
             let numero = whatsapp.replace(/\D/g, '');
             if(!numero.startsWith('51') && numero.length === 9) numero = '51' + numero;
-            const mensaje = `Hola *${nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unes a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
+            const mensaje = `Hola *${nombre}*, te saludamos de parte de *Frusan* 🫐. Nos complace informarte que ya está por iniciar nuestra *Campaña de Cosecha de Arándanos 2026* 🫐. Queremos hacerte la invitación formal para que te unas a este gran equipo. Por favor, confírmanos tu disponibilidad respondiendo a este mensaje.`;
             window.open(`https://api.whatsapp.com/send?phone=${numero}&text=${encodeURIComponent(mensaje)}`, '_blank');
         }
 
-        // FUNCIÓN OPTIMIZADA: RENDERIZADO EN BLOQUE (ALTA VELOCIDAD)
         function renderizarTarjetas(datos) {
             const contenedor = document.getElementById('cards-container');
             const noResults = document.getElementById('no-results');
@@ -277,17 +274,15 @@
             }
             noResults.classList.add('hidden');
 
-            let htmlAcumulado = ""; // Optimización crítica: Evita lag acumulando texto plano en memoria
+            let htmlAcumulado = "";
 
             for (let i = 0; i < datos.length; i++) {
                 const t = datos[i];
                 const colorCat = obtenerColorCategorizacion(t.categorizacion);
-                const colorAlerta = obtenerColorAlerta(t.alerta);
 
                 htmlAcumulado += `
                     <div class="bg-white rounded-2xl shadow-xs border-l-4 border-emerald-500 border border-y-slate-100 border-r-slate-100 p-5 flex flex-col justify-between hover:shadow-md transition-shadow duration-200">
                         <div>
-                            <!-- TOP HEADER DE TARJETA -->
                             <div class="flex items-center justify-between gap-2 mb-2">
                                 <span class="bg-slate-100 text-slate-600 text-[11px] font-bold px-2.5 py-1 rounded-md tracking-wider font-mono">
                                     DNI: ${t.dni}
@@ -295,14 +290,12 @@
                                 <span class="text-[10px] uppercase text-slate-400 font-bold tracking-wider">Campaña 2026</span>
                             </div>
 
-                            <!-- NOMBRE DEL TRABAJADOR -->
                             <h2 class="text-base font-bold text-slate-800 tracking-tight leading-tight uppercase mb-4 min-h-[44px] line-clamp-2">
                                 ${t.nombre}
                             </h2>
 
                             <hr class="border-slate-100 mb-4"/>
 
-                            <!-- GRILLA DE DATOS INTERNOS (REPLICA EXACTA DE TU DISEÑO + MODIFICACIONES) -->
                             <div class="grid grid-cols-2 gap-y-3.5 gap-x-2 text-xs">
                                 <div>
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">CRITERIO (GH)</p>
@@ -336,19 +329,9 @@
                                     <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SEXO</p>
                                     <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.sexo}</p>
                                 </div>
-                                <!-- NUEVAS COLUMNAS INTEGRADAS -->
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">SEMANA ACTIVO</p>
-                                    <p class="font-semibold text-slate-700 mt-0.5 uppercase">${t.semana_activo}</p>
-                                </div>
-                                <div>
-                                    <p class="text-[10px] font-bold text-slate-400 uppercase tracking-wider">ALERTA</p>
-                                    <p class="${colorAlerta} mt-0.5 uppercase">${t.alerta}</p>
-                                </div>
                             </div>
                         </div>
 
-                        <!-- FOOTER DE TARJETA CON BOTÓN WHATSAPP -->
                         <div class="flex items-center justify-between gap-2 mt-5 pt-3 border-t border-slate-50">
                             <span class="inline-flex items-center bg-emerald-50 text-emerald-700 text-[11px] font-bold px-2.5 py-1 rounded-full">
                                 <span class="w-1.5 h-1.5 bg-emerald-500 rounded-full mr-1.5 animate-pulse"></span> Activo
@@ -362,18 +345,30 @@
                 `;
             }
 
-            contenedor.innerHTML = htmlAcumulado; // Un solo impacto al DOM: Velocidad inmediata instantánea.
+            contenedor.innerHTML = htmlAcumulado;
         }
 
         function filtrarPersonal() {
-            const queryBar = document.getElementById('search-bar').value.toLowerCase().trim();
+            const queryRaw = document.getElementById('search-bar').value.toLowerCase().trim();
             const fCat = document.getElementById('filter-categorizacion').value;
             const fEvt = document.getElementById('filter-evento').value;
             const fMod = document.getElementById('filter-modalidad').value;
             const fTrab = document.getElementById('filter-trabajo').value;
 
+            // Variantes para búsqueda flexible de DNI
+            const queryLimpia = queryRaw.replace(/^0+/, '');
+            const queryPad = (queryLimpia.length > 0 && queryLimpia.length <= 8 && !isNaN(queryLimpio)) 
+                ? queryLimpia.padStart(8, '0') 
+                : queryRaw;
+
             datosFiltradosActuales = listaTrabajadores.filter(t => {
-                const cumpleBusqueda = queryBar === "" || t.nombre.toLowerCase().includes(queryBar) || t.dni.includes(queryBar);
+                const dniTexto = t.dni.toLowerCase();
+                const cumpleBusqueda = queryRaw === "" || 
+                                       t.nombre.toLowerCase().includes(queryRaw) || 
+                                       dniTexto.includes(queryRaw) || 
+                                       dniTexto.includes(queryPad) || 
+                                       dniTexto.replace(/^0+/, '').includes(queryLimpia);
+
                 const cumpleCat = fCat === "" || t.categorizacion === fCat;
                 const cumpleEvt = fEvt === "" || t.evento_registro === fEvt;
                 const cumpleMod = fMod === "" || t.modalidad === fMod;
@@ -396,9 +391,7 @@
                 "Zona": t.zona, 
                 "DNI": t.dni,
                 "Categorización": t.categorizacion, 
-                "Evento Registro": t.evento_registro,
-                "Semana Activo": t.semana_activo,
-                "Alerta": t.alerta
+                "Evento Registro": t.evento_registro
             }));
             const hojaTrabajo = XLSX.utils.json_to_sheet(datosAcondicionados);
             const libroTrabajo = XLSX.utils.book_new();
